@@ -1,0 +1,759 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Paquete Completo de Caligrafía</title>
+<meta name="description" content="Más de 1,500 páginas de caligrafía para imprimir y practicar, para adultos y niños, más aplicación con videoclases. Pago único de $200 MXN con garantía de 30 días.">
+<meta name="theme-color" content="#0F1A4A">
+<!--FONTS-->
+<style>
+@font-face{font-family:"Yellowtail";src:url(assets/fonts/Yellowtail-Regular.ttf) format("truetype");font-display:swap}
+@font-face{font-family:"Pinyon Script";src:url(assets/fonts/PinyonScript-Regular.ttf) format("truetype");font-display:swap}
+@font-face{font-family:"UnifrakturMaguntia";src:url(assets/fonts/UnifrakturMaguntia-Book.ttf) format("truetype");font-display:swap}
+@font-face{font-family:"Bricolage Grotesque";src:url(assets/fonts/Bricolage.ttf) format("truetype");font-weight:200 800;font-stretch:75% 100%;font-display:swap}
+@font-face{font-family:"Figtree";src:url(assets/fonts/Figtree.ttf) format("truetype");font-weight:300 900;font-display:swap}
+<!--/FONTS-->
+</style>
+<style>
+/* Layout: el papel de práctica. Bandas de tinta (portadas) alternan con hojas pautadas; los títulos se escriben a mano. */
+:root{
+  color-scheme:light;
+  --tinta:#0F1A4A;        /* azul marino de las portadas */
+  --tinta-2:#1C2C7A;      /* tinta azul de pluma */
+  --oro:#D4AE68;          /* ornamento dorado */
+  --oro-claro:#F1DDB0;
+  --papel:#FFFFFF;
+  --papel-2:#F3F5FB;      /* hoja con un toque azul */
+  --guia:#C9D3EE;         /* renglón de práctica */
+  --guia-2:#E3E8F6;
+  --trazo:#D2453B;        /* el trazo rojo de inicio en los cuadernillos */
+  --texto:#1A1F33;
+  --texto-2:#4B5370;
+  --script:"Yellowtail", "Brush Script MT", cursive;
+  --copper:"Pinyon Script", "Snell Roundhand", cursive;
+  --gotica:"UnifrakturMaguntia", "Old English Text MT", serif;
+  --sans:"Bricolage Grotesque", "Figtree", system-ui, sans-serif;
+  --body:"Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --pad:clamp(20px,5vw,56px);
+  --max:1160px;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --sombra:0 18px 40px -18px rgba(10,16,40,.45),0 3px 8px rgba(10,16,40,.10);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;scrollbar-color:var(--tinta-2) var(--papel-2)}
+body{margin:0;background:var(--papel);color:var(--texto);font-family:var(--body);font-size:clamp(17px,.9vw + 12px,19px);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+img,video{display:block;max-width:100%}
+::selection{background:var(--oro-claro);color:var(--tinta)}
+:focus-visible{outline:3px solid var(--oro);outline-offset:3px;border-radius:6px}
+::-webkit-scrollbar{width:10px}::-webkit-scrollbar-thumb{background:var(--tinta-2);border-radius:10px}::-webkit-scrollbar-track{background:var(--papel-2)}
+a{color:inherit;text-underline-offset:3px}
+p{margin:0}
+h1,h2,h3{margin:0;font-family:var(--sans);font-weight:750;letter-spacing:-.02em;line-height:1.02;text-wrap:balance;font-stretch:88%}
+h2{font-size:clamp(32px,4.4vw,56px)}
+h2 .s,h1 .s,.s{font-family:var(--script);font-weight:400;letter-spacing:0;font-stretch:100%;color:var(--tinta-2);line-height:.9}
+.wrap{max-width:var(--max);margin:0 auto;padding-left:max(var(--pad),env(safe-area-inset-left,0px));padding-right:max(var(--pad),env(safe-area-inset-right,0px))}
+.sec{padding-block:clamp(76px,10vw,132px)}
+.kicker-free{}
+/* Hoja pautada: línea base, línea media punteada, ascendente */
+.pauta{background-color:var(--papel);background-image:
+  linear-gradient(to bottom, transparent 0 63px, var(--guia) 63px 64px),
+  repeating-linear-gradient(to right, var(--guia-2) 0 6px, transparent 6px 12px);
+  background-size:100% 64px, 100% 1px;background-position:0 0, 0 40px}
+.pauta-sola{background-image:linear-gradient(to bottom, transparent 0 63px, var(--guia) 63px 64px);background-size:100% 64px}
+
+/* ---------- Botón ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6em;min-height:60px;padding:16px 32px;border:0;border-radius:999px;background:var(--oro);color:var(--tinta);font-family:var(--sans);font-weight:750;font-stretch:90%;font-size:clamp(18px,1.4vw,20px);letter-spacing:.005em;text-decoration:none;box-shadow:0 10px 22px -10px rgba(0,0,0,.55),inset 0 -3px 0 rgba(0,0,0,.14);transition:transform .35s var(--ease),box-shadow .35s var(--ease),background .2s;cursor:pointer;text-align:center}
+.btn:hover{transform:translateY(-2px);background:#DFBC7B;box-shadow:0 16px 28px -12px rgba(0,0,0,.6),inset 0 -3px 0 rgba(0,0,0,.14)}
+.btn:active{transform:translateY(1px)}
+.btn svg{width:22px;height:22px;flex:none}
+.btn-tinta{background:var(--tinta);color:#fff}
+.btn-tinta:hover{background:var(--tinta-2)}
+
+/* ---------- Hero (portada) ---------- */
+.hero{background:var(--tinta);color:#fff;position:relative;overflow:hidden;padding-block:clamp(22px,3vw,34px) clamp(70px,9vw,120px)}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.12;background-image:repeating-linear-gradient(-35deg, transparent 0 38px, var(--oro) 38px 39px)}
+.marco{position:absolute;inset:14px;border:1px solid rgba(212,174,104,.45);border-radius:6px;pointer-events:none}
+.marco::before,.marco::after{content:"";position:absolute;width:46px;height:46px;border:2px solid var(--oro);}
+.marco::before{top:-1px;left:-1px;border-right:0;border-bottom:0;border-top-left-radius:6px}
+.marco::after{bottom:-1px;right:-1px;border-left:0;border-top:0;border-bottom-right-radius:6px}
+.top{position:relative;display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:clamp(30px,5vw,60px);padding-top:10px}
+.marca{font-family:var(--script);font-size:30px;color:var(--oro);line-height:1}
+.top a{font-weight:700;font-size:15px;text-decoration:none;color:var(--oro-claro);border-bottom:1.5px solid rgba(241,221,176,.5);padding-bottom:2px}
+.top a:hover{border-color:var(--oro)}
+.hero-grid{position:relative;display:grid;grid-template-columns:1.08fr .92fr;grid-template-areas:"tit hojas" "cuerpo hojas";column-gap:clamp(28px,5vw,72px);align-items:end}
+.h-tit{grid-area:tit}.h-cuerpo{grid-area:cuerpo;align-self:start}.hojas{grid-area:hojas;align-self:center}
+.hero h1{font-size:clamp(40px,5.4vw,76px);font-weight:700;margin-bottom:24px;color:#fff}
+.hero h1 .s{display:block;color:var(--oro);font-size:1.9em;margin:.02em 0 -.12em -.04em;padding-bottom:.08em}
+.escribe{display:inline-block;clip-path:inset(-20% 100% -30% -5%);animation:escribir 2.2s var(--ease) .3s forwards}
+@keyframes escribir{to{clip-path:inset(-20% -5% -30% -5%)}}
+.hero-lead{font-size:clamp(17px,1.25vw,20px);max-width:40ch;color:#D9DEF2;margin-bottom:28px}
+.hero-lead b{color:#fff;font-weight:700}
+.hero-cta{display:flex;flex-direction:column;align-items:flex-start;gap:14px}
+.precio-linea{display:flex;align-items:baseline;gap:12px;color:#fff}
+.precio-linea b{font-family:var(--sans);font-weight:800;font-stretch:85%;font-size:40px;letter-spacing:-.02em;color:var(--oro)}
+.precio-linea span{font-size:15px;color:#C9D0EC;font-weight:600}
+.hero-nota{font-size:15px;color:#C9D0EC;display:flex;gap:8px;align-items:center}
+.hero-nota svg{width:18px;height:18px;flex:none;color:var(--oro)}
+.hojas{position:relative;height:clamp(400px,42vw,560px)}
+.hoja{position:absolute;margin:0;background:#fff;padding:10px 10px 0;border-radius:4px;box-shadow:0 26px 50px -20px rgba(0,0,0,.65);width:min(60%,320px)}
+.hoja img{width:100%;height:auto;aspect-ratio:620/695;object-fit:cover;border-radius:2px}
+.hoja figcaption{font-family:var(--script);font-size:30px;color:var(--tinta-2);padding:4px 6px 8px;line-height:1.1}
+.hoja figcaption small{font-family:var(--body);font-size:12px;color:var(--texto-2);letter-spacing:.08em;text-transform:uppercase;margin-right:8px;font-weight:700}
+.hoja-1{left:0;top:14%;transform:rotate(-5deg)}
+.hoja-2{right:0;top:0;transform:rotate(3.5deg)}
+.cinta{position:absolute;top:-12px;left:50%;width:90px;height:26px;translate:-50% 0;background:rgba(241,221,176,.82);transform:rotate(-3deg);box-shadow:0 2px 4px rgba(0,0,0,.15)}
+.ilustra{position:absolute;bottom:-4px;left:0;right:0;text-align:center;font-size:12px;color:#AEB6D8}
+
+/* ---------- Tu nombre ---------- */
+.nombre{background:var(--papel)}
+.nombre-cab{display:grid;grid-template-columns:1fr 1fr;gap:clamp(24px,5vw,72px);align-items:end;margin-bottom:clamp(30px,4vw,48px)}
+.nombre-cab p{color:var(--texto-2);max-width:44ch}
+.campo{display:flex;flex-direction:column;gap:8px;margin-top:22px;max-width:420px}
+.campo label{font-weight:700;font-size:14px;letter-spacing:.06em;text-transform:uppercase;color:var(--texto-2)}
+.campo input{font:inherit;font-size:22px;font-family:var(--sans);font-weight:600;padding:14px 18px;border:2px solid var(--tinta);border-radius:12px;color:var(--tinta);background:var(--papel);caret-color:var(--trazo)}
+.campo input::placeholder{color:#8A91AE}
+.campo input:focus{outline:none;box-shadow:0 0 0 4px var(--oro-claro)}
+.cuaderno{border:1.5px solid var(--guia);border-radius:16px;overflow:hidden;background:var(--papel);box-shadow:var(--sombra)}
+.renglon{display:grid;grid-template-columns:190px 1fr;align-items:stretch;border-top:1.5px solid var(--guia)}
+.renglon:first-child{border-top:0}
+.renglon-et{padding:18px 20px;border-right:2px solid var(--trazo);display:flex;flex-direction:column;justify-content:center;gap:2px;background:var(--papel-2)}
+.renglon-et b{font-family:var(--sans);font-weight:750;font-size:17px;line-height:1.15;color:var(--tinta)}
+.renglon-et span{font-size:13px;color:var(--texto-2);font-weight:600}
+.renglon-lin{position:relative;min-width:0;padding:0 clamp(16px,3vw,34px);display:flex;align-items:center;min-height:clamp(104px,11vw,132px);overflow:hidden;
+  background-image:linear-gradient(var(--guia),var(--guia)),linear-gradient(to right,var(--guia-2) 50%,transparent 0),linear-gradient(var(--guia-2),var(--guia-2));
+  background-size:100% 1.5px,12px 1px,100% 1px;background-repeat:no-repeat,repeat-x,no-repeat;background-position:0 72%,0 47%,0 22%}
+.renglon-lin .muestra{white-space:nowrap;line-height:1;color:var(--tinta-2);font-size:clamp(46px,6vw,78px);transform:translateY(.06em);text-overflow:ellipsis;overflow:hidden;max-width:100%;padding:.1em 0}
+.m-lineal{font-family:var(--sans);font-weight:300;font-stretch:100%;letter-spacing:.04em;font-size:clamp(40px,5vw,64px)!important}
+.m-copper{font-family:var(--copper)}
+.m-gotica{font-family:var(--gotica);color:var(--tinta)!important}
+.m-brush{font-family:var(--script)}
+.renglon-lin .fantasma{position:absolute;right:clamp(16px,3vw,34px);font-size:13px;color:var(--texto-2);font-weight:600;display:none}
+.nombre-pie{margin-top:18px;font-size:14px;color:var(--texto-2)}
+
+/* ---------- ¿Te suena? ---------- */
+.suena{background:var(--papel-2)}
+.suena-grid{display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(30px,6vw,90px);align-items:start}
+.suena h2{position:sticky;top:30px}
+.dudas{list-style:none;margin:0;padding:0;display:grid}
+.duda{padding:26px 0;border-top:1.5px solid var(--guia)}
+.duda:last-child{border-bottom:1.5px solid var(--guia)}
+.duda q{display:block;font-family:var(--script);font-size:clamp(28px,2.6vw,36px);line-height:1.1;color:var(--tinta-2);quotes:"“" "”";margin-bottom:8px}
+.duda p{color:var(--texto-2);max-width:56ch}
+.duda p b{color:var(--texto)}
+
+/* ---------- Entregables ---------- */
+.recibes{background:var(--papel)}
+.recibes-cab{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap;margin-bottom:clamp(30px,4vw,48px)}
+.recibes-cab p{max-width:42ch;color:var(--texto-2)}
+.estante-wrap{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:clamp(24px,4vw,56px);align-items:start}
+.estante-wrap > *{min-width:0}
+.grupo + .grupo{margin-top:34px}
+.grupo-t{display:flex;align-items:baseline;gap:14px;margin-bottom:16px;border-bottom:1.5px solid var(--guia);padding-bottom:8px}
+.grupo-t b{font-family:var(--script);font-weight:400;font-size:38px;line-height:1;color:var(--tinta-2)}
+.grupo-t span{font-size:14px;font-weight:700;color:var(--texto-2);letter-spacing:.06em;text-transform:uppercase}
+.libros{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:clamp(10px,1.4vw,18px)}
+.libro{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:8px;min-width:0}
+.libro-tapa{position:relative;aspect-ratio:3/4;border-radius:4px 8px 8px 4px;overflow:hidden;background:var(--papel-2);box-shadow:0 10px 22px -12px rgba(10,16,40,.55),inset 6px 0 0 rgba(0,0,0,.08);transition:transform .45s var(--ease),box-shadow .45s var(--ease)}
+.libro-tapa img{width:100%;height:100%;object-fit:cover;object-position:top}
+.libro-tapa::after{content:"";position:absolute;inset:0 auto 0 0;width:7px;background:linear-gradient(to right,rgba(0,0,0,.25),transparent)}
+.libro-n{font-family:var(--sans);font-weight:700;font-size:14px;line-height:1.2;color:var(--texto)}
+.libro-p{font-size:12.5px;font-weight:700;color:var(--texto-2);letter-spacing:.04em;text-transform:uppercase}
+.libro:hover .libro-tapa{transform:translateY(-5px) rotate(-1deg)}
+.libro[aria-pressed="true"] .libro-tapa{transform:translateY(-6px);box-shadow:0 0 0 3px var(--papel),0 0 0 6px var(--oro),0 16px 26px -12px rgba(10,16,40,.6)}
+.libro:focus-visible .libro-tapa{outline:3px solid var(--oro);outline-offset:3px}
+.visor{position:sticky;top:24px;background:var(--tinta);color:#fff;border-radius:18px;padding:clamp(22px,2.6vw,32px);box-shadow:var(--sombra);scroll-margin-top:16px}
+.visor h3{font-size:clamp(26px,2.4vw,34px);color:#fff}
+.visor-meta{font-weight:700;color:var(--oro);font-size:13.5px;margin:10px 0 8px;letter-spacing:.06em;text-transform:uppercase}
+.visor-txt{color:#D2D8F0;margin-bottom:18px;min-height:3.2em;font-size:16.5px}
+.tira{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px 14px;margin:0 -2px;overscroll-behavior-x:contain;scrollbar-color:var(--oro) transparent}
+.tira figure{margin:0;flex:0 0 auto;scroll-snap-align:start;width:min(62%,220px)}
+.tira figure.apaisada{width:min(92%,320px)}
+.tira img,.tira video{width:100%;height:auto;border-radius:5px;background:#fff;box-shadow:0 10px 18px -10px rgba(0,0,0,.6)}
+.tira video{border-radius:14px}
+.tira figcaption{font-size:12.5px;color:#AEB6D8;margin-top:6px}
+.visor-pista{font-size:13.5px;color:#AEB6D8;display:flex;gap:8px;align-items:center}
+.visor-pista svg{width:16px;height:16px}
+.totales{display:flex;flex-wrap:wrap;gap:14px 40px;margin-top:clamp(36px,5vw,56px);padding-top:24px;border-top:1.5px solid var(--guia)}
+.totales p{font-weight:700;color:var(--texto-2);font-size:15px;line-height:1.2}
+.totales span{display:block;font-family:var(--sans);font-weight:800;font-stretch:85%;color:var(--tinta);font-size:clamp(34px,3.6vw,46px);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+
+/* ---------- Cómo funciona ---------- */
+.funciona{background:var(--papel-2)}
+.funciona-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(32px,6vw,90px);align-items:center}
+.funciona h2{margin-bottom:26px}
+.pasos{list-style:none;padding:0;margin:0;display:grid;gap:22px;counter-reset:p}
+.pasos li{display:grid;grid-template-columns:58px 1fr;gap:16px;align-items:start}
+.pasos li::before{counter-increment:p;content:counter(p);font-family:var(--script);font-size:40px;width:58px;height:58px;border-radius:50%;background:var(--tinta);color:var(--oro);display:grid;place-items:center;line-height:1;padding-top:6px}
+.pasos b{display:block;font-family:var(--sans);font-weight:750;font-size:21px;line-height:1.2;margin-bottom:2px;color:var(--tinta)}
+.pasos li div{color:var(--texto-2)}
+.carta-maria{position:relative;background:var(--papel) linear-gradient(to bottom,transparent 0 31px,var(--guia) 31px 32px) 0 0/100% 32px;padding:32px clamp(26px,4vw,46px) 32px;transform:rotate(1.2deg);box-shadow:var(--sombra);border-radius:4px;line-height:32px;font-size:17.5px;color:var(--texto)}
+.carta-maria::before{content:"";position:absolute;top:0;bottom:0;left:clamp(16px,2.6vw,30px);width:1.5px;background:var(--trazo);opacity:.6}
+.carta-maria p{padding-left:12px}
+.carta-maria p + p{margin-top:32px}
+.firma{font-family:var(--script);font-size:44px;color:var(--tinta-2);line-height:64px;margin-top:0!important}
+
+/* ---------- App ---------- */
+.app{background:var(--tinta);color:#fff;position:relative;overflow:hidden}
+.app::before{content:"";position:absolute;inset:0;opacity:.08;background-image:repeating-linear-gradient(-35deg, transparent 0 38px, var(--oro) 38px 39px);pointer-events:none}
+.app-grid{position:relative;display:grid;grid-template-columns:.8fr 1.2fr;gap:clamp(36px,7vw,100px);align-items:center}
+.app h2{color:#fff;margin-bottom:18px}
+.app h2 .s{color:var(--oro)}
+.app-lead{color:#D2D8F0;max-width:46ch;margin-bottom:26px}
+.cel{position:relative;width:min(290px,76vw);margin:0 auto;aspect-ratio:9/19.5;border-radius:44px;background:#05081C;padding:11px;box-shadow:0 34px 60px -22px rgba(0,0,0,.75),0 0 0 1.5px rgba(212,174,104,.5)}
+.cel::after{content:"";position:absolute;top:21px;left:50%;translate:-50% 0;width:28%;height:22px;border-radius:20px;background:#05081C;z-index:2}
+.cel video,.cel img{width:100%;height:100%;object-fit:cover;object-position:top;border-radius:34px;background:#222}
+.clases{list-style:none;margin:0;padding:0;columns:2;column-gap:30px}
+.clases li{break-inside:avoid;display:flex;gap:10px;padding:10px 0;border-top:1px solid rgba(201,211,238,.22);font-weight:600;font-size:16px;line-height:1.3;color:#EEF1FB}
+.clases li svg{width:20px;height:20px;flex:none;color:var(--oro);margin-top:1px}
+
+/* ---------- Comparación ---------- */
+.compara{background:var(--papel)}
+.compara h2{max-width:18ch;margin-bottom:clamp(32px,5vw,56px)}
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,3vw,36px)}
+.col{border-radius:16px;padding:clamp(24px,3.4vw,40px)}
+.col h3{font-size:clamp(22px,2.2vw,30px);margin-bottom:20px}
+.col ul{list-style:none;margin:0;padding:0;display:grid;gap:14px}
+.col li{display:flex;gap:12px;align-items:flex-start}
+.col li svg{width:22px;height:22px;flex:none;margin-top:3px}
+.col-no{border:1.5px dashed #AEB6D8;color:var(--texto-2)}
+.col-no h3{color:var(--texto-2)}
+.col-no li svg{color:var(--trazo)}
+.col-si{color:var(--texto);box-shadow:var(--sombra);border:1.5px solid var(--guia)}
+.col-si h3{color:var(--tinta)}
+.col-si li svg{color:var(--tinta-2)}
+
+/* ---------- Bonos ---------- */
+.bonos{background:var(--papel-2)}
+.bonos h2{margin-bottom:12px}
+.bonos .lead{color:var(--texto-2);margin-bottom:clamp(32px,5vw,52px);max-width:54ch}
+.bono-lista{display:grid;grid-template-columns:1.3fr 1fr;gap:clamp(16px,2.4vw,28px)}
+.bono{border-radius:16px;padding:clamp(22px,2.6vw,30px);background:var(--papel);display:flex;flex-direction:column;gap:12px;box-shadow:0 8px 20px -14px rgba(10,16,40,.4)}
+.bono-grande{grid-row:span 2}
+.bono-tag{align-self:flex-start;font-weight:800;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--trazo)}
+.bono h3{font-size:clamp(23px,2vw,28px);color:var(--tinta)}
+.bono p{color:var(--texto-2);font-size:16px}
+.bono-img{margin-top:auto;display:grid;grid-template-columns:.7fr 1.3fr;gap:12px;padding-top:10px;align-items:center}
+.bono-img img{border-radius:4px;box-shadow:0 10px 18px -10px rgba(10,16,40,.45);width:100%;height:auto}
+.bono-fila{display:flex;gap:16px;align-items:center}
+.bono-ico{width:56px;height:56px;border-radius:50%;background:var(--tinta);color:var(--oro);display:grid;place-items:center;flex:none}
+.bono-ico svg{width:26px;height:26px}
+
+/* ---------- Precio ---------- */
+.precio{background:var(--tinta);color:#fff;position:relative;overflow:hidden}
+.precio::before{content:"";position:absolute;inset:0;opacity:.12;background-image:repeating-linear-gradient(-35deg, transparent 0 38px, var(--oro) 38px 39px);pointer-events:none}
+.precio-grid{position:relative;display:grid;grid-template-columns:1fr minmax(320px,470px);gap:clamp(32px,6vw,80px);align-items:center}
+.precio h2{font-size:clamp(36px,5vw,66px);color:#fff;margin-bottom:20px}
+.precio h2 .s{color:var(--oro);display:block;font-size:1.3em}
+.precio-txt{color:#D2D8F0;max-width:40ch}
+.boleto{position:relative;background:var(--papel);color:var(--texto);border-radius:10px;padding:clamp(26px,3vw,38px);box-shadow:0 30px 60px -24px rgba(0,0,0,.75)}
+.boleto::before{content:"";position:absolute;inset:8px;border:1.5px solid var(--oro);border-radius:6px;pointer-events:none}
+.boleto-cab{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}
+.boleto-cab b{font-family:var(--copper);font-weight:400;font-size:34px;line-height:1.1;color:var(--tinta)}
+.tag{background:var(--tinta);color:var(--oro);font-weight:800;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;border-radius:999px;padding:6px 11px;white-space:nowrap}
+.monto{display:flex;align-items:flex-start;gap:6px;font-family:var(--sans);font-weight:800;font-stretch:80%;line-height:.88;color:var(--tinta);border-top:1.5px solid var(--guia);padding-top:16px}
+.monto .s1{font-size:38px;margin-top:10px}
+.monto .n{font-size:clamp(90px,10vw,120px);letter-spacing:-.04em}
+.monto .m{font-size:24px;margin-top:14px}
+.monto-sub{font-weight:700;color:var(--texto-2);margin:8px 0 20px}
+.boleto ul{list-style:none;margin:0 0 26px;padding:0;display:grid;gap:10px}
+.boleto li{display:flex;gap:10px;font-size:16px;line-height:1.4}
+.incl-t{font-weight:800;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--trazo);margin:0 0 10px}
+.boleto ul + .incl-t{margin-top:-8px}
+.boleto li span{flex:1;display:block}
+.boleto li em{float:right;margin-left:12px;font-style:normal;font-size:13px;font-weight:700;color:var(--texto-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.boleto ul{margin-bottom:20px!important;gap:7px!important}
+.boleto li{font-size:15.5px!important}
+.bono-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:clamp(14px,1.8vw,24px)}
+.bono-c{display:flex;flex-direction:column;gap:6px;min-width:0}
+.bono-c img{width:100%;height:auto;border-radius:4px 8px 8px 4px;box-shadow:0 14px 26px -14px rgba(10,16,40,.6);margin-bottom:8px}
+.bono-c h3{font-size:clamp(18px,1.5vw,21px);color:var(--tinta);line-height:1.15}
+.bono-c p{font-size:15px;color:var(--texto-2);line-height:1.45}
+.bono-pg{font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--texto-2)}
+.boleto li b{font-weight:700;color:var(--tinta)}
+.monto-sub b{color:var(--tinta)}
+.regalos li svg{color:var(--trazo)!important}
+@media (max-width:899px){.bono-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.boleto li svg{width:20px;height:20px;flex:none;color:var(--tinta-2);margin-top:2px}
+.btn-block{width:100%}
+.sellos{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:16px;font-size:13px;font-weight:700;color:var(--texto-2)}
+.sellos span{display:flex;align-items:center;gap:6px}
+.sellos svg{width:16px;height:16px;color:var(--oro)}
+
+/* ---------- FAQ ---------- */
+.faq{background:var(--papel)}
+.faq-grid{display:grid;grid-template-columns:.75fr 1.25fr;gap:clamp(28px,5vw,72px);align-items:start}
+.faq h2{position:sticky;top:28px}
+details{border-bottom:1.5px solid var(--guia)}
+details:first-of-type{border-top:1.5px solid var(--guia)}
+summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:18px;align-items:center;padding:22px 0;font-family:var(--sans);font-weight:700;font-size:clamp(19px,1.6vw,22px);line-height:1.25;color:var(--tinta)}
+summary::-webkit-details-marker{display:none}
+.mas{flex:none;width:34px;height:34px;border-radius:50%;border:1.5px solid var(--tinta);display:grid;place-items:center;transition:transform .4s var(--ease),background .2s,color .2s}
+.mas svg{width:14px;height:14px}
+details[open] .mas{transform:rotate(45deg);background:var(--tinta);color:var(--oro)}
+summary:hover .mas{background:var(--papel-2)}
+details p{padding:0 0 24px;color:var(--texto-2);max-width:62ch}
+
+/* ---------- Cierre ---------- */
+.cierre{background:var(--papel-2);text-align:center}
+.cierre h2{font-size:clamp(36px,5.2vw,68px);max-width:15ch;margin:0 auto 20px;color:var(--tinta)}
+.cierre h2 .s{display:block;font-size:1.45em;margin-top:.04em}
+.cierre p{color:var(--texto-2);max-width:46ch;margin:0 auto 34px}
+.ok{display:flex;justify-content:center;flex-wrap:wrap;gap:10px 26px;margin-top:26px;font-weight:700;font-size:15px;color:var(--texto-2)}
+.ok span{display:flex;gap:8px;align-items:center}
+.ok svg{width:18px;height:18px;color:var(--tinta-2)}
+.bendiga{font-family:var(--script);color:var(--tinta-2);font-size:34px;margin-top:44px;line-height:1}
+footer{background:var(--tinta);color:#AEB6D8;font-size:13px;padding-block:28px 110px;text-align:center;line-height:1.6}
+
+/* ---------- Barra móvil ---------- */
+.barra{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--tinta);color:#fff;padding:10px max(14px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(14px,env(safe-area-inset-left,0px));display:flex;align-items:center;gap:12px;transform:translateY(110%);transition:transform .5s var(--ease);box-shadow:0 -10px 30px rgba(0,0,0,.3);border-top:1px solid rgba(212,174,104,.5)}
+.barra.ver{transform:none}
+.barra-p{line-height:1.1;flex:none}
+.barra-p b{font-family:var(--sans);font-weight:800;font-stretch:85%;font-size:26px;color:var(--oro);display:block}
+.barra-p small{font-size:12px;color:#C9D0EC}
+.barra .btn{flex:1;min-height:52px;font-size:16px;padding:12px 16px;white-space:nowrap}
+
+/* ---------- Movimiento ---------- */
+@media (prefers-reduced-motion:no-preference){
+  .js .sube{opacity:.001;transform:translateY(22px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+  .js .sube.vista{opacity:1;transform:none}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .escribe{clip-path:none;animation:none}
+  *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+
+/* ---------- Responsive ---------- */
+@media (min-width:900px){.barra{display:none}footer{padding-bottom:36px}}
+@media (max-width:899px){
+  .hero-grid,.nombre-cab,.suena-grid,.estante-wrap,.funciona-grid,.app-grid,.precio-grid,.faq-grid{grid-template-columns:1fr}
+  .hero-grid{grid-template-areas:"tit" "hojas" "cuerpo"}
+  .hojas{height:min(72vw,340px);margin:4px 0 18px}
+  .hoja{width:50%;padding:7px 7px 0}
+  .hoja figcaption{font-size:22px}
+  .hoja figcaption small{display:none}
+  .hero h1{font-size:clamp(34px,9vw,54px);margin-bottom:6px}
+  .top{margin-bottom:18px}
+  .h-cuerpo{display:flex;flex-direction:column}
+  .h-cuerpo .hero-cta{order:-1;margin-bottom:24px}
+  .hero-cta .btn{width:100%}
+  .suena h2,.faq h2{position:static}
+  .visor{position:relative;top:0}
+  .bono-lista{grid-template-columns:1fr}.bono-grande{grid-row:auto}
+  .app-grid .cel-col{order:2}
+  .renglon{grid-template-columns:1fr}
+  .renglon-et{border-right:0;border-bottom:1.5px solid var(--guia);flex-direction:row;justify-content:flex-start;align-items:baseline;gap:10px;padding:10px 16px}
+}
+@media (max-width:620px){
+  .cols{grid-template-columns:1fr}
+  .clases{columns:1}
+  .libros{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .top a{display:none}
+  .marco{inset:8px}
+  .btn{font-size:17px;padding:14px 20px}
+}
+
+.maestra{display:flex;align-items:center;gap:16px;margin-bottom:clamp(18px,2.4vw,28px)}
+.maestra img{width:clamp(64px,6vw,86px);height:auto;aspect-ratio:1;border-radius:50%;object-fit:cover;border:3px solid var(--oro);box-shadow:0 10px 22px -10px rgba(0,0,0,.7);flex:none}
+.maestra p{display:flex;flex-direction:column;color:#C9D0EC;font-size:15px;font-weight:600;line-height:1.3}
+.maestra .s{color:var(--oro-claro);font-size:clamp(28px,2.4vw,34px);line-height:1.05}
+.beneficios{display:grid;gap:18px;margin:0 0 14px}
+.beneficio{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
+.beneficio-n{width:44px;height:44px;border-radius:50%;border:1.5px solid var(--oro);color:var(--oro);display:grid;place-items:center;font-family:var(--script);font-size:28px;line-height:1;padding-top:4px}
+.beneficio h3{font-size:clamp(20px,1.8vw,24px);color:#fff;margin-bottom:4px;font-stretch:92%}
+.beneficio p{color:#D2D8F0;font-size:16.5px}
+.app-cta{margin-top:30px}
+.bono-lista{grid-template-columns:1.2fr 1fr!important}
+.bono-link{margin-top:auto;display:inline-flex;align-items:center;gap:8px;font-weight:700;color:var(--tinta-2);text-decoration:none;border-bottom:1.5px solid var(--guia);align-self:flex-start;padding-bottom:2px}
+.bono-link svg{width:18px;height:18px}
+.bono-link:hover{border-color:var(--tinta-2)}
+@media (max-width:899px){.bono-lista{grid-template-columns:1fr!important}.clases{padding-left:0!important}.app-cta{width:100%}.maestra{margin-bottom:14px}}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js')</script>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5L19.5 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></symbol>
+  <symbol id="i-flecha" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 8.5l6 3.5-6 3.5z" fill="currentColor"/></symbol>
+  <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-rayo" viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-infinito" viewBox="0 0 24 24"><path d="M7 8.5a3.5 3.5 0 100 7c3 0 7-7 10-7a3.5 3.5 0 110 7c-3 0-7-7-10-7z" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-mas" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></symbol>
+  <symbol id="i-mano" viewBox="0 0 24 24"><path d="M9 11V5.5a1.5 1.5 0 013 0V11m0-1V4.5a1.5 1.5 0 013 0V11m0-.5V6.5a1.5 1.5 0 013 0V14c0 4-2.5 7-6.5 7S6 18.5 5 16l-1.8-4a1.5 1.5 0 012.6-1.4L7.5 13V8.5a1.5 1.5 0 013 0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-grupo" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M2.5 20c.6-3.5 3.2-5.5 6.5-5.5s5.9 2 6.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 4.8a3.5 3.5 0 010 6.4M18 14.8c1.9.8 3.2 2.5 3.5 5.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
+  <symbol id="i-pluma" viewBox="0 0 24 24"><path d="M4 20l3.5-1L19 7.5a2.1 2.1 0 00-3-3L4.5 16 4 20z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M14.5 6l3 3" stroke="currentColor" stroke-width="2"/></symbol>
+</svg>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <span class="marco" aria-hidden="true"></span>
+  <div class="wrap">
+    <div class="top">
+      <div class="marca">Caligrafía desde Cero</div>
+      <a href="#recibes">Ver el material</a>
+    </div>
+    <div class="hero-grid">
+      <div class="h-tit">
+      <div class="maestra"><img src="assets/maria-cara.jpg" alt="María, maestra de caligrafía" width="240" height="240"><p><span class="s">¡Hola, soy María!</span>Te enseño caligrafía desde cero</p></div>
+      <h1>Tu letra puede ser <span class="s"><span class="escribe">hermosa</span></span></h1>
+      </div>
+      <div class="h-cuerpo">
+        <p class="hero-lead">El <b>Paquete Completo de Caligrafía</b>: más de 1,500 páginas para imprimir y practicar, de los primeros trazos a Copperplate, Gótica y Brush Lettering. <b>Con material para niños y aplicación con videoclases.</b></p>
+        <div class="hero-cta">
+          <p class="precio-linea"><b>$200 MXN</b><span>Precio total, pago único</span></p>
+          <a class="btn" href="#app">Quiero mi paquete <svg><use href="#i-flecha"/></svg></a>
+          <p class="hero-nota"><svg><use href="#i-escudo"/></svg>Garantía de 30 días: si no te gusta, te devolvemos tu dinero.</p>
+        </div>
+      </div>
+      <div class="hojas" aria-label="Antes y después de practicar">
+        <figure class="hoja hoja-1"><span class="cinta" aria-hidden="true"></span><img src="assets/antes.jpg" alt="Letra común antes de practicar, en un cuaderno punteado" width="620" height="695"><figcaption><small>Antes</small>mi letra común</figcaption></figure>
+        <figure class="hoja hoja-2"><span class="cinta" aria-hidden="true"></span><img src="assets/despues.jpg" alt="Letra cursiva elegante después de practicar" width="620" height="695"><figcaption><small>Después</small>mi nueva letra</figcaption></figure>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ================= TU NOMBRE ================= -->
+<section class="sec nombre" aria-labelledby="t-nombre">
+  <div class="wrap">
+    <div class="nombre-cab">
+      <h2 id="t-nombre" class="sube">Escribe tu nombre y míralo en <span class="s">cada estilo</span></h2>
+      <div class="sube">
+        <p>Estos son los cuatro estilos que vas a practicar en los capítulos para adultos, letra por letra, sobre renglones guía como estos.</p>
+        <div class="campo">
+          <label for="tuNombre">Tu nombre</label>
+          <input id="tuNombre" type="text" maxlength="18" value="María" autocomplete="given-name" placeholder="Escribe tu nombre">
+        </div>
+      </div>
+    </div>
+    <div class="cuaderno sube" id="cuaderno">
+      <div class="renglon"><div class="renglon-et"><b>Lineal</b><span>Capítulo 2</span></div><div class="renglon-lin"><span class="muestra m-lineal" data-nombre>María</span></div></div>
+      <div class="renglon"><div class="renglon-et"><b>Copperplate</b><span>Capítulo 3</span></div><div class="renglon-lin"><span class="muestra m-copper" data-nombre>María</span></div></div>
+      <div class="renglon"><div class="renglon-et"><b>Gótica</b><span>Capítulo 4</span></div><div class="renglon-lin"><span class="muestra m-gotica" data-nombre>María</span></div></div>
+      <div class="renglon"><div class="renglon-et"><b>Brush Lettering</b><span>Capítulo 5</span></div><div class="renglon-lin"><span class="muestra m-brush" data-nombre>María</span></div></div>
+    </div>
+    <p class="nombre-pie">Muestra tipográfica de referencia. En los cuadernillos practicas a mano con pluma, plumón o lápiz.</p>
+  </div>
+</section>
+
+<!-- ================= ¿TE SUENA? ================= -->
+<section class="sec suena" aria-labelledby="t-suena">
+  <div class="wrap suena-grid">
+    <h2 id="t-suena" class="sube">¿Alguna vez has <span class="s">pensado esto?</span></h2>
+    <ol class="dudas">
+      <li class="duda sube"><q>Mi letra es fea desde niña.</q><p><b>Se puede cambiar.</b> La letra es un movimiento que se entrena. Empiezas soltando la mano con trazos sencillos y avanzas paso a paso.</p></li>
+      <li class="duda sube"><q>Nunca he tomado una clase.</q><p><b>Para eso está hecho.</b> Empiezas desde cero: cómo agarrar la pluma, la posición de la mano y cómo controlar la presión.</p></li>
+      <li class="duda sube"><q>No tengo plumas especiales.</q><p><b>No las necesitas.</b> Basta una pluma Bic de 1.6 mm o la que prefieras. Con lápiz puedes borrar y reutilizar las hojas.</p></li>
+      <li class="duda sube"><q>Casi no tengo tiempo.</q><p><b>Vas a tu ritmo.</b> Imprimes una hoja, practicas unos minutos y sigues cuando puedas.</p></li>
+      <li class="duda sube"><q>¿Y mis hijos también?</q><p><b>Claro.</b> Incluye cuadernillos para niños: preescritura, cursiva e imprenta, vocales y lectoescritura.</p></li>
+    </ol>
+  </div>
+</section>
+
+<!-- ================= LO QUE RECIBES ================= -->
+<section class="sec recibes" id="recibes" aria-labelledby="t-recibes">
+  <div class="wrap">
+    <div class="recibes-cab">
+      <h2 id="t-recibes" class="sube">Todo lo que <span class="s">recibes</span></h2>
+      <p class="sube">Toca cada cuadernillo para ver cómo se ve por dentro. Son páginas reales del paquete.</p>
+    </div>
+    <div class="estante-wrap">
+      <div id="estante"></div>
+      <aside class="visor" id="visor" aria-live="polite">
+        <h3 id="vTitulo"></h3>
+        <p class="visor-meta" id="vMeta"></p>
+        <p class="visor-txt" id="vTxt"></p>
+        <div class="tira" id="vTira" tabindex="0" aria-label="Páginas de muestra"></div>
+        <p class="visor-pista"><svg><use href="#i-mano"/></svg>Desliza para ver más páginas</p>
+      </aside>
+    </div>
+    <div class="totales sube">
+      <p><span>+1,500</span>páginas para imprimir</p>
+      <p><span>5</span>capítulos para adultos</p>
+      <p><span>4</span>cuadernillos para niños</p>
+      <p><span>5</span>bonos de regalo</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CÓMO FUNCIONA ================= -->
+<section class="sec funciona" aria-labelledby="t-funciona">
+  <div class="wrap funciona-grid">
+    <div>
+      <h2 id="t-funciona" class="sube">Pruébalo con <span class="s">30 días de garantía</span></h2>
+      <ol class="pasos">
+        <li class="sube"><div><b>Haces tu pedido</b>Toca el botón y realiza tu pago único de $200 en un minuto.</div></li>
+        <li class="sube"><div><b>Recibes todo el material</b>Los cuadernillos en PDF, las plantillas y tu acceso a la aplicación con videoclases.</div></li>
+        <li class="sube"><div><b>Practicas 30 días sin riesgo</b>Si el material no es para ti, nos escribes dentro de los 30 días y te devolvemos tu dinero.</div></li>
+      </ol>
+    </div>
+    <div class="carta-maria sube">
+      <p>¡Hola! Me llamo María y preparé este material pensando en quienes empiezan desde cero y en quienes ya escriben, pero quieren mejorar su letra y aprender nuevos estilos.</p>
+      <p>Confío tanto en el contenido que te doy 30 días de garantía. Si no es para ti, me escribes y te devuelvo tu dinero.</p>
+      <p class="firma">Con cariño, María</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= APP ================= -->
+<section class="sec app" id="app" aria-labelledby="t-app">
+  <div class="wrap app-grid">
+    <div class="cel-col sube">
+      <div class="cel"><video src="assets/area-miembros.mp4" poster="assets/area-miembros-poster.jpg" muted loop playsinline autoplay preload="auto" aria-label="Recorrido por la aplicación con videoclases"></video></div>
+    </div>
+    <div>
+      <h2 id="t-app" class="sube">Una aplicación con <span class="s">videoclases</span></h2>
+      <p class="app-lead sube">Con tu paquete recibes acceso a la aplicación con videoclases. Ahí ves, paso a paso y desde tu celular, cómo se hace cada ejercicio:</p>
+      <ul class="clases sube">
+        <li><svg><use href="#i-play"/></svg>Cómo agarrar el lápiz sin que duela la mano</li>
+        <li><svg><use href="#i-play"/></svg>Ejercicios de calentamiento para soltar la mano</li>
+        <li><svg><use href="#i-play"/></svg>5 errores al escribir a mano</li>
+        <li><svg><use href="#i-play"/></svg>Cómo escribir recto en una hoja en blanco</li>
+        <li><svg><use href="#i-play"/></svg>Caligrafía para apuntes</li>
+        <li><svg><use href="#i-play"/></svg>Cómo mejorar tu letra para exámenes</li>
+        <li><svg><use href="#i-play"/></svg>Cómo escribir rápido y bonito en cursiva</li>
+        <li><svg><use href="#i-play"/></svg>Caligrafía con bolígrafo</li>
+        <li><svg><use href="#i-play"/></svg>Letra cursiva para niños</li>
+        <li><svg><use href="#i-play"/></svg>10 ejercicios para mejorar tu letra</li>
+      </ul>
+      <a class="btn app-cta sube" href="#precio" data-checkout>Quiero mi paquete por $200 <svg><use href="#i-flecha"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COMPARACIÓN ================= -->
+<section class="sec compara" aria-labelledby="t-compara">
+  <div class="wrap">
+    <h2 id="t-compara" class="sube">Aprender sola es un enredo. <span class="s">Aquí tienes el camino</span></h2>
+    <div class="cols">
+      <div class="col col-no sube">
+        <h3>Por tu cuenta</h3>
+        <ul>
+          <li><svg><use href="#i-x"/></svg>Videos sueltos sin saber por dónde empezar</li>
+          <li><svg><use href="#i-x"/></svg>Practicar sin hojas guía ni renglones correctos</li>
+          <li><svg><use href="#i-x"/></svg>Un estilo por aquí, otro por allá, sin orden</li>
+          <li><svg><use href="#i-x"/></svg>Buscar aparte algo para los niños</li>
+        </ul>
+      </div>
+      <div class="col col-si sube">
+        <h3>Con tu paquete</h3>
+        <ul>
+          <li><svg><use href="#i-check"/></svg>Un orden claro, de los trazos básicos a los estilos avanzados</li>
+          <li><svg><use href="#i-check"/></svg>Plantillas listas para imprimir y repetir las veces que quieras</li>
+          <li><svg><use href="#i-check"/></svg>Lineal, Copperplate, Gótica, Brush Lettering y cursiva</li>
+          <li><svg><use href="#i-check"/></svg>Cuadernillos para niños en el mismo precio</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BONOS ================= -->
+<section class="sec bonos" id="bonos" aria-labelledby="t-bonos">
+  <div class="wrap">
+    <h2 id="t-bonos" class="sube">Y además, <span class="s">5 bonos de regalo</span></h2>
+    <p class="lead sube">Incluidos en tu paquete, sin costo extra. Te llegan junto con todo el material.</p>
+    <div class="bono-grid">
+      <article class="bono-c sube"><img src="assets/bonos/bono1.jpg" alt="Portada del bono 1: Plan de Práctica de 30 Días" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 1</span><h3>Plan de Práctica de 30 Días</h3><p>Qué practicar cada día, en 15 minutos, con tu hoja de antes y después.</p><span class="bono-pg">7 págs.</span></article>
+      <article class="bono-c sube"><img src="assets/bonos/bono2.jpg" alt="Portada del bono 2: Tarjetas para Fechas Especiales" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 2</span><h3>Tarjetas para Fechas Especiales</h3><p>8 tarjetas para calcar y regalar: cumpleaños, 10 de mayo, Día del Maestro, Navidad y más.</p><span class="bono-pg">9 págs.</span></article>
+      <article class="bono-c sube"><img src="assets/bonos/bono3.jpg" alt="Portada del bono 3: Crea tu Firma" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 3</span><h3>Crea tu Firma</h3><p>Diseña una firma bonita y tuya en 5 pasos, con hojas para practicarla.</p><span class="bono-pg">7 págs.</span></article>
+      <article class="bono-c sube"><img src="assets/bonos/bono4.jpg" alt="Portada del bono 4: Guía de Materiales Económicos" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 4</span><h3>Guía de Materiales Económicos</h3><p>Qué comprar en la papelería, cómo imprimir y trucos para gastar menos.</p><span class="bono-pg">3 págs.</span></article>
+      <article class="bono-c sube"><img src="assets/bonos/bono5.jpg" alt="Portada del bono 5: Diplomas y Tabla de Logros" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 5</span><h3>Diplomas y Tabla de Logros</h3><p>Diplomas para cada cuadernillo de niños y una tabla de estrellas para motivarlos.</p><span class="bono-pg">7 págs.</span></article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRECIO ================= -->
+<section class="sec precio" id="precio" aria-labelledby="t-precio">
+  <div class="wrap precio-grid">
+    <div>
+      <h2 id="t-precio" class="sube">Todo el paquete, <span class="s">un solo pago</span></h2>
+      <p class="precio-txt sube">Material para adultos y niños, la aplicación con videoclases y 5 bonos de regalo. Sin mensualidades: pagas una sola vez.</p>
+    </div>
+    <div class="boleto sube">
+      <div class="boleto-cab"><b>Paquete Completo</b><span class="tag">Garantía 30 días</span></div>
+      <div class="monto" aria-label="200 pesos mexicanos"><span class="s1">$</span><span class="n">200</span><span class="m">MXN</span></div>
+      <p class="monto-sub"><b>Pago único</b> con <b>garantía de 30 días</b>.</p>
+      <p class="incl-t">Para adultos</p>
+      <ul>
+        <li><svg><use href="#i-check"/></svg><span><em>36 págs.</em>Capítulo 1 · <b>Bienvenida y trazos esenciales</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span><em>72 págs.</em>Capítulo 2 · <b>ABC Lineal</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span><em>150 págs.</em>Capítulo 3 · <b>Copperplate</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span><em>120 págs.</em>Capítulo 4 · <b>Blackletter</b> (Gótica)</span></li>
+        <li><svg><use href="#i-check"/></svg><span><em>130 págs.</em>Capítulo 5 · <b>Script y Brush Lettering</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span><em>418 págs.</em><b>Caligrafía Fácil</b> para Todos</span></li>
+        <li><svg><use href="#i-check"/></svg><span><em>56 págs.</em><b>55 Frases Motivadoras</b> en Brush Lettering</span></li>
+      </ul>
+      <p class="incl-t">Para niños</p>
+      <ul>
+        <li><svg><use href="#i-check"/></svg><span><em>41 págs.</em><b>Preescritura</b> y grafomotricidad</span></li>
+        <li><svg><use href="#i-check"/></svg><span><em>103 págs.</em><b>Cursiva e Imprenta</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span><em>308 págs.</em><b>Lectoescritura</b>: vocales y sílabas</span></li>
+        <li><svg><use href="#i-check"/></svg><span><em>81 págs.</em><b>Cursiva Integral</b></span></li>
+      </ul>
+      <p class="incl-t">Además</p>
+      <ul>
+        <li><svg><use href="#i-check"/></svg><span><b>Aplicación con videoclases</b> paso a paso</span></li>
+      </ul>
+      <p class="incl-t">5 bonos de regalo</p>
+      <ul class="regalos">
+        <li><svg><use href="#i-check"/></svg><span>Bono 1 · <b>Plan de Práctica de 30 Días</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span>Bono 2 · <b>Tarjetas para Fechas Especiales</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span>Bono 3 · <b>Crea tu Firma</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span>Bono 4 · <b>Guía de Materiales Económicos</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span>Bono 5 · <b>Diplomas y Tabla de Logros</b></span></li>
+      </ul>
+      <a class="btn btn-tinta btn-block" href="#precio" data-checkout>Quiero mi paquete <svg><use href="#i-flecha"/></svg></a>
+      <div class="sellos">
+        <span><svg><use href="#i-escudo"/></svg>Garantía 30 días</span>
+        <span><svg><use href="#i-rayo"/></svg>Envío inmediato</span>
+        <span><svg><use href="#i-check"/></svg>Pago único</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="sec faq" aria-labelledby="t-faq">
+  <div class="wrap faq-grid">
+    <h2 id="t-faq">¿Te quedó <span class="s">alguna duda?</span></h2>
+    <div>
+      <details><summary>¿Y si no me gusta el material?<span class="mas"><svg><use href="#i-mas"/></svg></span></summary><p>Tienes 30 días de garantía. Si el material no es para ti, escríbenos dentro de ese plazo y te devolvemos tu dinero, sin complicaciones.</p></details>
+      <details><summary>¿Cómo recibo el material?<span class="mas"><svg><use href="#i-mas"/></svg></span></summary><p>Recibes los cuadernillos en PDF, listos para abrir en tu celular o computadora, junto con tu acceso a la aplicación con videoclases.</p></details>
+      <details><summary>¿Sirve si estoy empezando desde cero?<span class="mas"><svg><use href="#i-mas"/></svg></span></summary><p>Sí. El capítulo 1 empieza por los fundamentos: cómo sujetar la pluma, la postura y ejercicios de calentamiento con líneas, óvalos, ondas y bucles.</p></details>
+      <details><summary>¿Qué necesito para practicar?<span class="mas"><svg><use href="#i-mas"/></svg></span></summary><p>Una pluma Bic de 1.6 mm o la que prefieras, y las hojas impresas. Si no tienes impresora, puedes imprimir en cualquier papelería. Con lápiz puedes borrar y reutilizar las páginas.</p></details>
+      <details><summary>¿Para qué edades es el material de niños?<span class="mas"><svg><use href="#i-mas"/></svg></span></summary><p>Hay cuadernillos de preescritura y grafomotricidad para los más pequeños, y de vocales, lectoescritura, cursiva e imprenta para quienes ya empiezan a escribir.</p></details>
+      <details><summary>¿Tiene mensualidad?<span class="mas"><svg><use href="#i-mas"/></svg></span></summary><p>No. Es un pago único de $200 pesos.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CIERRE ================= -->
+<section class="sec cierre pauta-sola" aria-labelledby="t-cierre">
+  <div class="wrap">
+    <h2 id="t-cierre" class="sube">Tu nueva letra empieza con <span class="s">un trazo</span></h2>
+    <p class="sube">Más de 1,500 páginas, aplicación con videoclases, 5 bonos y material para toda la familia por $200 pesos, con 30 días de garantía.</p>
+    <a class="btn btn-tinta sube" href="#precio" data-checkout>Quiero mi paquete por $200 <svg><use href="#i-flecha"/></svg></a>
+    <div class="ok">
+      <span><svg><use href="#i-check"/></svg>Pago único</span>
+      <span><svg><use href="#i-check"/></svg>Garantía de 30 días</span>
+      <span><svg><use href="#i-check"/></svg>Aplicación con videoclases</span>
+    </div>
+    <p class="bendiga">¡Que Dios te bendiga!</p>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>© 2026 Caligrafía desde Cero. Producto 100% digital: no se envía material impreso.</p>
+    <p>Las imágenes de antes y después son ilustrativas. Los resultados dependen de la práctica de cada persona.</p>
+  </div>
+</footer>
+
+<div class="barra" id="barra" aria-hidden="true">
+  <div class="barra-p"><b>$200 MXN</b><small>Garantía 30 días</small></div>
+  <a class="btn" href="#precio" data-checkout tabindex="-1">Quiero mi paquete</a>
+</div>
+
+<script>
+/* ===== Configuración =====
+   Pega aquí la URL del checkout (integración Zenith). Mientras esté vacía,
+   los botones llevan a la sección de precio. Los parámetros UTM y fbclid
+   de la visita se pasan automáticamente al checkout. */
+const CHECKOUT_URL = '';
+
+(function(){
+  if (CHECKOUT_URL) {
+    try {
+      const src = new URLSearchParams(location.search), url = new URL(CHECKOUT_URL);
+      for (const [k,v] of src) if (/^(utm_|fbclid|sck|src)/.test(k)) url.searchParams.set(k,v);
+      document.querySelectorAll('[data-checkout]').forEach(a => a.href = url.toString());
+    } catch(e) {}
+  }
+
+  // --- Tu nombre en cada estilo
+  const input = document.getElementById('tuNombre');
+  const muestras = document.querySelectorAll('[data-nombre]');
+  const pinta = () => { const v = input.value.trim() || 'María'; muestras.forEach(m => m.textContent = v); };
+  input.addEventListener('input', pinta);
+
+  // --- Cuadernillos
+  const P = 'assets/pages/';
+  const grupos = [
+    {t:'Adultos', d:'7 cuadernillos', items:[
+      {n:'Bienvenida y trazos', img:'cap1-portada', meta:'Capítulo 1 · 36 páginas', txt:'Materiales, postura y trazos esenciales con líneas, óvalos, ondas y bucles para soltar la mano.', pags:['cap1-portada','cap1-intro','cap1-trazos']},
+      {n:'ABC Lineal', img:'cap2-portada', meta:'Capítulo 2 · 72 páginas', txt:'El abecedario lineal: letras simples, sin adornos, con palabras para repasar. El puente antes de los estilos elaborados.', pags:['cap2-portada','cap2-a']},
+      {n:'Copperplate', img:'cap3-portada', meta:'Capítulo 3 · 150 páginas', txt:'La letra inglesa elegante: inclinación de 55°, trazos finos y gruesos, mayúsculas y minúsculas letra por letra.', pags:['cap3-portada','cap3-mayus','cap3-a']},
+      {n:'Blackletter', img:'cap4-portada', meta:'Capítulo 4 · 120 páginas', txt:'La gótica u Old English: trazos rectos y verticales con fuerza, del ejercicio básico al alfabeto completo.', pags:['cap4-portada','cap4-abc','cap4-a']},
+      {n:'Script y Brush', img:'cap5-portada', meta:'Capítulo 5 · 130 páginas', txt:'Brush Lettering, el estilo más popular de hoy: trazos fluidos con contraste para frases, tarjetas y carteles.', pags:['cap5-portada','cap5-a','cap5-f']},
+      {n:'Caligrafía Fácil', img:'facil-portada', meta:'Para todos · 418 páginas', txt:'Coordinación motora, alfabeto minúsculo y mayúsculo, y práctica de cada letra con renglones guía. Para tu letra de todos los días.', pags:['facil-portada','facil-consejos','facil-abc','facil-a']},
+      {n:'Frases Motivadoras', img:'frases-portada', meta:'Brush Lettering · 55 plantillas', txt:'Frases para calcar, repetir y hacer tuyas, una práctica serena trazo a trazo.', pags:['frases-portada','frases-1','frases-2'], apDesde1:true}
+    ]},
+    {t:'Niños', d:'4 cuadernillos', items:[
+      {n:'Preescritura', img:'pre-portada', meta:'Grafomotricidad · 41 páginas', txt:'Para los más pequeños: caminos, ondas, zigzags y figuras punteadas para repasar.', pags:['pre-portada','pre-1','pre-2']},
+      {n:'Cursiva e Imprenta', img:'ci-portada', meta:'Mejorar la letra · 103 páginas', txt:'Más de 100 actividades: trazos guiados, abecedario y frases en cursiva e imprenta.', pags:['ci-portada','ci-1','ci-2']},
+      {n:'Lectoescritura', img:'lecto-1', meta:'Vocales y sílabas · 308 páginas', txt:'Vocales, sílabas y primeras palabras con dibujos para colorear, unir y escribir.', pags:['lecto-1','lecto-2','lecto-3'], apUlt:true},
+      {n:'Cursiva Integral', img:'cint-portada', meta:'Letra cursiva · 81 páginas', txt:'Cursiva con personajes y colores: soltar la manita, repasar líneas punteadas y escribir cada letra.', pags:['cint-portada','cint-1','cint-2']}
+    ]},
+    {t:'Bonos', d:'5 de regalo', items:[
+      {n:'Plan de 30 Días', img:'bono1-portada', meta:'Bono 1 · 8 páginas', txt:'Qué practicar cada día en 15 minutos, con tu hoja de antes y después para ver tu avance.', pags:['bono1-portada','bono1-a','bono1-b']},
+      {n:'Tarjetas Especiales', img:'bono2-portada', meta:'Bono 2 · 10 páginas', txt:'8 tarjetas para calcar y regalar: cumpleaños, 10 de mayo, Día del Maestro, Navidad y más.', pags:['bono2-portada','bono2-a','bono2-b']},
+      {n:'Crea tu Firma', img:'bono3-portada', meta:'Bono 3 · 8 páginas', txt:'Diseña una firma bonita y tuya en 5 pasos, con hojas para practicarla en tamaños reales.', pags:['bono3-portada','bono3-a','bono3-b']},
+      {n:'Guía de Materiales', img:'bono4-portada', meta:'Bono 4 · 4 páginas', txt:'Qué comprar en la papelería, cómo imprimir bien y trucos para gastar menos.', pags:['bono4-portada','bono4-a','bono4-b']},
+      {n:'Diplomas y Logros', img:'bono5-portada', meta:'Bono 5 · 8 páginas', txt:'Una tabla de estrellas y un diploma para cada cuadernillo de niños.', pags:['bono5-portada','bono5-a','bono5-b']}
+    ]}
+  ];
+  const todos = [];
+  const est = document.getElementById('estante');
+  grupos.forEach(g => {
+    const div = document.createElement('div'); div.className = 'grupo';
+    div.innerHTML = '<div class="grupo-t"><b>'+g.t+'</b><span>'+g.d+'</span></div><div class="libros"></div>';
+    const cont = div.querySelector('.libros');
+    g.items.forEach(it => {
+      const i = todos.length; todos.push(it);
+      const b = document.createElement('button'); b.type='button'; b.className='libro';
+      b.setAttribute('aria-pressed', i===0 ? 'true' : 'false');
+      const src = it.img ? P+it.img+'.jpg' : 'assets/app-clases.jpg';
+      b.innerHTML = '<span class="libro-tapa"><img src="'+src+'" alt="" loading="lazy"></span><span class="libro-n">'+it.n+'</span><span class="libro-p">'+it.meta.split('·').pop().trim()+'</span>';
+      b.addEventListener('click', () => elegir(i, true));
+      cont.appendChild(b);
+    });
+    est.appendChild(div);
+  });
+  const botones = est.querySelectorAll('.libro');
+  const vT=document.getElementById('vTitulo'), vM=document.getElementById('vMeta'), vX=document.getElementById('vTxt'), vTira=document.getElementById('vTira'), visor=document.getElementById('visor');
+  function elegir(i, click){
+    const c = todos[i];
+    botones.forEach((el,j) => el.setAttribute('aria-pressed', j===i ? 'true' : 'false'));
+    vT.textContent = c.n; vM.textContent = c.meta; vX.textContent = c.txt;
+    vTira.innerHTML = c.video
+      ? '<figure><img src="assets/app-inicio.jpg" alt="Inicio de la aplicación" loading="lazy"><figcaption>Inicio de la aplicación</figcaption></figure><figure><img src="assets/app-clases.jpg" alt="Lista de videoclases en la aplicación" loading="lazy"><figcaption>Tus videoclases</figcaption></figure><figure><video src="assets/area-miembros.mp4" poster="assets/area-miembros-poster.jpg" muted loop playsinline autoplay preload="none"></video><figcaption>Recorrido en video</figcaption></figure>'
+      : c.pags.map((p,k) => { const ap = (c.apDesde1 && k>0) || (c.apUlt && k===c.pags.length-1); return '<figure'+(ap?' class="apaisada"':'')+'><img src="'+P+p+'.jpg" alt="Página de muestra '+(k+1)+' de '+c.n+'" loading="lazy"><figcaption>Página de muestra '+(k+1)+'</figcaption></figure>'; }).join('');
+    vTira.scrollLeft = 0;
+    if (click && matchMedia('(max-width:899px)').matches) visor.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  elegir(0,false);
+
+  // --- Apariciones suaves
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('vista'); io.unobserve(e.target);} }), {rootMargin:'0px 0px -8% 0px'});
+    document.querySelectorAll('.sube').forEach(el => io.observe(el));
+    // --- Barra fija en móvil
+    const barra = document.getElementById('barra'), hero = document.querySelector('.hero'), precio = document.getElementById('precio');
+    let enHero = true, enPrecio = false;
+    const upd = () => { const v = !enHero && !enPrecio; barra.classList.toggle('ver', v); barra.setAttribute('aria-hidden', v ? 'false' : 'true'); barra.querySelector('a').tabIndex = v ? 0 : -1; };
+    new IntersectionObserver(([e]) => { enHero = e.isIntersecting; upd(); }).observe(hero);
+    new IntersectionObserver(([e]) => { enPrecio = e.isIntersecting; upd(); }, {threshold:.3}).observe(precio);
+  } else {
+    document.querySelectorAll('.sube').forEach(el => el.classList.add('vista'));
+  }
+})();
+</script>
+</body>
+</html>
