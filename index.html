@@ -269,6 +269,13 @@ h2 .s,h1 .s,.s{font-family:var(--script);font-weight:400;letter-spacing:0;font-s
 .bono-c img{width:100%;height:auto;border-radius:4px 8px 8px 4px;box-shadow:0 14px 26px -14px rgba(10,16,40,.6);margin-bottom:8px}
 .bono-c h3{font-size:clamp(18px,1.5vw,21px);color:var(--tinta);line-height:1.15}
 .bono-c p{font-size:15px;color:var(--texto-2);line-height:1.45}
+.bono-precio{display:flex;align-items:baseline;gap:10px;margin-top:2px}
+.bono-precio s{font-size:15px;font-weight:600;color:var(--texto-2);text-decoration-color:var(--trazo);text-decoration-thickness:2px}
+.bono-precio b{font-family:var(--sans);font-weight:800;font-stretch:88%;font-size:20px;color:var(--trazo);text-transform:uppercase;letter-spacing:.02em}
+.boleto li em.gratis{color:var(--trazo)}
+.boleto li em.gratis s,.incl-t s,.bonos .lead s,.libro-p s{color:var(--texto-2);text-decoration-color:var(--trazo);text-decoration-thickness:1.5px;font-weight:600}
+.gratis-t{color:var(--trazo)}
+.bonos .lead b{color:var(--trazo)}
 .bono-pg{font-size:12.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--texto-2)}
 .boleto li b{font-weight:700;color:var(--tinta)}
 .monto-sub b{color:var(--tinta)}
@@ -557,13 +564,13 @@ footer{background:var(--tinta);color:#AEB6D8;font-size:13px;padding-block:28px 1
 <section class="sec bonos" id="bonos" aria-labelledby="t-bonos">
   <div class="wrap">
     <h2 id="t-bonos" class="sube">Y además, <span class="s">5 bonos de regalo</span></h2>
-    <p class="lead sube">Incluidos en tu paquete, sin costo extra. Te llegan junto con todo el material.</p>
+    <p class="lead sube">Valen <s>$385 MXN</s>, pero hoy te los llevas <b>gratis</b> con tu paquete. Te llegan junto con todo el material.</p>
     <div class="bono-grid">
-      <article class="bono-c sube"><img src="assets/bonos/bono1.jpg" alt="Portada del bono 1: Plan de Práctica de 30 Días" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 1</span><h3>Plan de Práctica de 30 Días</h3><p>Qué practicar cada día, en 15 minutos, con tu hoja de antes y después.</p><span class="bono-pg">7 págs.</span></article>
-      <article class="bono-c sube"><img src="assets/bonos/bono2.jpg" alt="Portada del bono 2: Tarjetas para Fechas Especiales" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 2</span><h3>Tarjetas para Fechas Especiales</h3><p>8 tarjetas para calcar y regalar: cumpleaños, 10 de mayo, Día del Maestro, Navidad y más.</p><span class="bono-pg">9 págs.</span></article>
-      <article class="bono-c sube"><img src="assets/bonos/bono3.jpg" alt="Portada del bono 3: Crea tu Firma" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 3</span><h3>Crea tu Firma</h3><p>Diseña una firma bonita y tuya en 5 pasos, con hojas para practicarla.</p><span class="bono-pg">7 págs.</span></article>
-      <article class="bono-c sube"><img src="assets/bonos/bono4.jpg" alt="Portada del bono 4: Guía de Materiales Económicos" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 4</span><h3>Guía de Materiales Económicos</h3><p>Qué comprar en la papelería, cómo imprimir y trucos para gastar menos.</p><span class="bono-pg">3 págs.</span></article>
-      <article class="bono-c sube"><img src="assets/bonos/bono5.jpg" alt="Portada del bono 5: Diplomas y Tabla de Logros" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 5</span><h3>Diplomas y Tabla de Logros</h3><p>Diplomas para cada cuadernillo de niños y una tabla de estrellas para motivarlos.</p><span class="bono-pg">7 págs.</span></article>
+      <article class="bono-c sube"><img src="assets/bonos/bono1.jpg" alt="Portada del bono 1: Plan de Práctica de 30 Días" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 1</span><h3>Plan de Práctica de 30 Días</h3><p>Qué practicar cada día, en 15 minutos, con tu hoja de antes y después.</p><span class="bono-precio"><s>$97 MXN</s><b>Gratis</b></span></article>
+      <article class="bono-c sube"><img src="assets/bonos/bono2.jpg" alt="Portada del bono 2: Tarjetas para Fechas Especiales" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 2</span><h3>Tarjetas para Fechas Especiales</h3><p>8 tarjetas para calcar y regalar: cumpleaños, 10 de mayo, Día del Maestro, Navidad y más.</p><span class="bono-precio"><s>$77 MXN</s><b>Gratis</b></span></article>
+      <article class="bono-c sube"><img src="assets/bonos/bono3.jpg" alt="Portada del bono 3: Crea tu Firma" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 3</span><h3>Crea tu Firma</h3><p>Diseña una firma bonita y tuya en 5 pasos, con hojas para practicarla.</p><span class="bono-precio"><s>$97 MXN</s><b>Gratis</b></span></article>
+      <article class="bono-c sube"><img src="assets/bonos/bono4.jpg" alt="Portada del bono 4: Guía de Materiales Económicos" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 4</span><h3>Guía de Materiales Económicos</h3><p>Qué comprar en la papelería, cómo imprimir y trucos para gastar menos.</p><span class="bono-precio"><s>$47 MXN</s><b>Gratis</b></span></article>
+      <article class="bono-c sube"><img src="assets/bonos/bono5.jpg" alt="Portada del bono 5: Diplomas y Tabla de Logros" loading="lazy" width="560" height="792"><span class="bono-tag">Bono 5</span><h3>Diplomas y Tabla de Logros</h3><p>Diplomas para cada cuadernillo de niños y una tabla de estrellas para motivarlos.</p><span class="bono-precio"><s>$67 MXN</s><b>Gratis</b></span></article>
     </div>
   </div>
 </section>
@@ -600,13 +607,13 @@ footer{background:var(--tinta);color:#AEB6D8;font-size:13px;padding-block:28px 1
       <ul>
         <li><svg><use href="#i-check"/></svg><span><b>Aplicación con videoclases</b> paso a paso</span></li>
       </ul>
-      <p class="incl-t">5 bonos de regalo</p>
+      <p class="incl-t">5 bonos de regalo · <s>$385 MXN</s> Gratis</p>
       <ul class="regalos">
-        <li><svg><use href="#i-check"/></svg><span>Bono 1 · <b>Plan de Práctica de 30 Días</b></span></li>
-        <li><svg><use href="#i-check"/></svg><span>Bono 2 · <b>Tarjetas para Fechas Especiales</b></span></li>
-        <li><svg><use href="#i-check"/></svg><span>Bono 3 · <b>Crea tu Firma</b></span></li>
-        <li><svg><use href="#i-check"/></svg><span>Bono 4 · <b>Guía de Materiales Económicos</b></span></li>
-        <li><svg><use href="#i-check"/></svg><span>Bono 5 · <b>Diplomas y Tabla de Logros</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span><em class="gratis"><s>$97</s> Gratis</em>Bono 1 · <b>Plan de Práctica de 30 Días</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span><em class="gratis"><s>$77</s> Gratis</em>Bono 2 · <b>Tarjetas para Fechas Especiales</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span><em class="gratis"><s>$97</s> Gratis</em>Bono 3 · <b>Crea tu Firma</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span><em class="gratis"><s>$47</s> Gratis</em>Bono 4 · <b>Guía de Materiales Económicos</b></span></li>
+        <li><svg><use href="#i-check"/></svg><span><em class="gratis"><s>$67</s> Gratis</em>Bono 5 · <b>Diplomas y Tabla de Logros</b></span></li>
       </ul>
       <a class="btn btn-tinta btn-block" href="#precio" data-checkout>Quiero mi paquete <svg><use href="#i-flecha"/></svg></a>
       <div class="sellos">
@@ -701,11 +708,11 @@ const CHECKOUT_URL = 'checkout.html';
       {n:'Cursiva Integral', img:'cint-portada', meta:'Letra cursiva · 81 páginas', txt:'Cursiva con personajes y colores: soltar la manita, repasar líneas punteadas y escribir cada letra.', pags:['cint-portada','cint-1','cint-2']}
     ]},
     {t:'Bonos', d:'5 de regalo', items:[
-      {n:'Plan de 30 Días', img:'bono1-portada', meta:'Bono 1 · 8 páginas', txt:'Qué practicar cada día en 15 minutos, con tu hoja de antes y después para ver tu avance.', pags:['bono1-portada','bono1-a','bono1-b']},
-      {n:'Tarjetas Especiales', img:'bono2-portada', meta:'Bono 2 · 10 páginas', txt:'8 tarjetas para calcar y regalar: cumpleaños, 10 de mayo, Día del Maestro, Navidad y más.', pags:['bono2-portada','bono2-a','bono2-b']},
-      {n:'Crea tu Firma', img:'bono3-portada', meta:'Bono 3 · 8 páginas', txt:'Diseña una firma bonita y tuya en 5 pasos, con hojas para practicarla en tamaños reales.', pags:['bono3-portada','bono3-a','bono3-b']},
-      {n:'Guía de Materiales', img:'bono4-portada', meta:'Bono 4 · 4 páginas', txt:'Qué comprar en la papelería, cómo imprimir bien y trucos para gastar menos.', pags:['bono4-portada','bono4-a','bono4-b']},
-      {n:'Diplomas y Logros', img:'bono5-portada', meta:'Bono 5 · 8 páginas', txt:'Una tabla de estrellas y un diploma para cada cuadernillo de niños.', pags:['bono5-portada','bono5-a','bono5-b']}
+      {n:'Plan de 30 Días', img:'bono1-portada', precio:'$97 MXN', meta:'Bono 1 · Valor $97 MXN · Gratis', txt:'Qué practicar cada día en 15 minutos, con tu hoja de antes y después para ver tu avance.', pags:['bono1-portada']},
+      {n:'Tarjetas Especiales', img:'bono2-portada', precio:'$77 MXN', meta:'Bono 2 · Valor $77 MXN · Gratis', txt:'8 tarjetas para calcar y regalar: cumpleaños, 10 de mayo, Día del Maestro, Navidad y más.', pags:['bono2-portada']},
+      {n:'Crea tu Firma', img:'bono3-portada', precio:'$97 MXN', meta:'Bono 3 · Valor $97 MXN · Gratis', txt:'Diseña una firma bonita y tuya en 5 pasos, con hojas para practicarla en tamaños reales.', pags:['bono3-portada']},
+      {n:'Guía de Materiales', img:'bono4-portada', precio:'$47 MXN', meta:'Bono 4 · Valor $47 MXN · Gratis', txt:'Qué comprar en la papelería, cómo imprimir bien y trucos para gastar menos.', pags:['bono4-portada']},
+      {n:'Diplomas y Logros', img:'bono5-portada', precio:'$67 MXN', meta:'Bono 5 · Valor $67 MXN · Gratis', txt:'Una tabla de estrellas y un diploma para cada cuadernillo de niños.', pags:['bono5-portada']}
     ]}
   ];
   const todos = [];
@@ -719,7 +726,7 @@ const CHECKOUT_URL = 'checkout.html';
       const b = document.createElement('button'); b.type='button'; b.className='libro';
       b.setAttribute('aria-pressed', i===0 ? 'true' : 'false');
       const src = it.img ? P+it.img+'.jpg' : 'assets/app-clases.jpg';
-      b.innerHTML = '<span class="libro-tapa"><img src="'+src+'" alt="" loading="lazy"></span><span class="libro-n">'+it.n+'</span><span class="libro-p">'+it.meta.split('·').pop().trim()+'</span>';
+      b.innerHTML = '<span class="libro-tapa"><img src="'+src+'" alt="" loading="lazy"></span><span class="libro-n">'+it.n+'</span><span class="libro-p">'+(it.precio ? '<s>'+it.precio+'</s> <b class="gratis-t">Gratis</b>' : it.meta.split('·').pop().trim())+'</span>';
       b.addEventListener('click', () => elegir(i, true));
       cont.appendChild(b);
     });
