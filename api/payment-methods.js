@@ -15,7 +15,8 @@ export async function GET() {
       baseAmount: priceOrder([]).amount,
     });
   } catch (err) {
-    console.error('payment-methods', err?.code ?? err?.name);
-    return json({ error: 'No pudimos cargar las formas de pago. Intenta en unos segundos.' }, 503);
+    console.error('payment-methods', err?.code ?? err?.name, err?.status ?? '');
+    // El código ayuda a diagnosticar (p. ej. ZENITH_NOT_CONFIGURED, HTTP_401) sin exponer datos sensibles.
+    return json({ error: 'No pudimos cargar las formas de pago. Intenta en unos segundos.', code: err?.code ?? 'UNKNOWN', status: err?.status ?? null }, 503);
   }
 }
