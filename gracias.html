@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tu pedido · Caligrafía desde Cero</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0F1A4A">
+<link rel="stylesheet" href="assets/checkout.css">
+<style>
+.gracias{max-width:640px;margin:0 auto;padding-block:34px 80px}
+.hola{font-family:var(--script);font-size:46px;color:var(--tinta-2);line-height:1;margin-bottom:6px}
+.acceso{display:grid;gap:12px;margin-top:22px}
+</style>
+</head>
+<body>
+<header class="barra-top"><div class="wrap"><a class="marca" href="index.html">Caligrafía desde Cero</a><span class="seguro">Tu pedido</span></div></header>
+<main class="wrap gracias">
+  <section class="panel" id="caja" aria-live="polite">
+    <div class="cargando"><span></span><span></span></div>
+  </section>
+</main>
+<script type="module">
+import { renderPago, vigilarEstado } from './assets/pago.js';
+const caja = document.getElementById('caja');
+const q = new URLSearchParams(location.search);
+const ref = q.get('ref'), t = q.get('t');
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+function pagado(s) {
+  const a = s.access || {};
+  caja.innerHTML = `<p class="hola">¡Gracias!</p><h1 style="font-size:32px">Tu pago está confirmado</h1>
+    <p style="margin-top:10px;color:var(--texto-2)">Ya tienes tu Paquete Completo de Caligrafía. ¡Que Dios te bendiga y disfruta cada trazo!</p>
+    <div class="acceso">
+      ${a.materialUrl ? `<a class="btn btn-oro" href="${esc(a.materialUrl)}" rel="noopener">Entrar a mi material</a>` : '<div class="aviso ok">En unos minutos recibirás tu acceso. Revisa tu correo, también la carpeta de spam.</div>'}
+      ${a.vipUrl ? `<a class="btn btn-sec" href="${esc(a.vipUrl)}" rel="noopener">Entrar al Grupo VIP de WhatsApp</a>` : ''}
+    </div>
+    <p class="legal" style="margin-top:18px">Pedido ${esc(s.referenceId)}</p>`;
+}
+
+async function iniciar() {
+  if (!ref || !t) { caja.innerHTML = '<div class="aviso error">No encontramos los datos de tu pedido. Revisa el enlace o vuelve a la página de pago.</div>'; return; }
+  let primero = true;
+  vigilarEstado(ref, t, (s) => {
+    if (s.status === 'paid') return pagado(s);
+    if (primero) {
+      primero = false;
+      renderPago(caja, s);
+      const h = document.createElement('p');
+      h.className = 'hola'; h.style.fontSize = '36px'; h.textContent = '¡Ya casi!';
+      caja.prepend(h);
+    }
+    const txt = document.getElementById('estadoTxt');
+    if (txt && s.status === 'confirming') txt.textContent = 'Recibimos tu pago. Estamos confirmándolo…';
+  });
+}
+iniciar();
+</script>
+</body>
+</html>

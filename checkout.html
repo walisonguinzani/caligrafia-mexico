@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Finaliza tu pedido · Caligrafía desde Cero</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0F1A4A">
+<link rel="stylesheet" href="assets/checkout.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4.5 12.5l5 5L19.5 7" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-escudo" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M8.5 12l2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-candado" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10.5V8a4 4 0 018 0v2.5" fill="none" stroke="currentColor" stroke-width="2"/></symbol>
+  <symbol id="i-flecha" viewBox="0 0 24 24"><path d="M5 12h13M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<header class="barra-top">
+  <div class="wrap">
+    <a class="marca" href="index.html">Caligrafía desde Cero</a>
+    <span class="seguro"><svg><use href="#i-candado"/></svg>Pago seguro</span>
+  </div>
+</header>
+
+<main class="wrap grid">
+  <div>
+    <form id="form" novalidate>
+      <section class="panel" aria-labelledby="p1">
+        <div class="paso"><span class="paso-n">1</span><h2 id="p1">Tus datos</h2></div>
+        <div class="campo">
+          <label for="customerName">Nombre y apellido</label>
+          <input id="customerName" name="customerName" autocomplete="name" required placeholder="Como aparece en tu identificación">
+          <span class="err" id="err-customerName" role="alert"></span>
+        </div>
+        <div class="campo">
+          <label for="customerEmail">Correo electrónico</label>
+          <input id="customerEmail" name="customerEmail" type="email" inputmode="email" autocomplete="email" required placeholder="tucorreo@gmail.com">
+          <span class="ayuda">Ahí te enviamos tu acceso al material.</span>
+          <span class="err" id="err-customerEmail" role="alert"></span>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="p2">
+        <div class="paso"><span class="paso-n">2</span><h2 id="p2">Mejora tu pedido</h2></div>
+        <div id="bumps"></div>
+      </section>
+
+      <section class="panel" aria-labelledby="p3">
+        <div class="paso"><span class="paso-n">3</span><h2 id="p3">Forma de pago</h2></div>
+        <div id="metodos" class="cargando" aria-busy="true"><span></span><span></span></div>
+        <span class="err" id="err-paymentMethod" role="alert" style="display:block;margin-top:8px"></span>
+        <div id="errorGeneral" class="aviso error oculto" role="alert" style="margin-top:16px"></div>
+        <p style="margin-top:20px"><button class="btn" id="enviar" type="submit" disabled>Generar mi pago <svg><use href="#i-flecha"/></svg></button></p>
+        <p class="legal">Al continuar aceptas recibir tu acceso y avisos de tu pedido por correo.</p>
+      </section>
+    </form>
+
+    <section class="panel oculto" id="pago" aria-live="polite"></section>
+  </div>
+
+  <aside class="panel resumen" aria-labelledby="t-resumen">
+    <h2 id="t-resumen">Tu pedido</h2>
+    <div class="prod"><img src="assets/pages/cap3-portada.jpg" alt="" width="62" height="88"><div><b>Paquete Completo de Caligrafía</b><small>+1,500 páginas · App con videoclases · 5 bonos</small></div></div>
+    <ul class="lineas" id="lineas"></ul>
+    <div class="total"><span>Total</span><b id="total">$200 MXN</b></div>
+    <ul class="incluye">
+      <li><svg><use href="#i-check"/></svg>5 capítulos para adultos y Caligrafía Fácil</li>
+      <li><svg><use href="#i-check"/></svg>55 Frases Motivadoras</li>
+      <li><svg><use href="#i-check"/></svg>4 cuadernillos para niños</li>
+      <li><svg><use href="#i-check"/></svg>Aplicación con videoclases</li>
+      <li><svg><use href="#i-check"/></svg>5 bonos de regalo</li>
+    </ul>
+    <div class="garantia"><svg><use href="#i-escudo"/></svg><p><b>Garantía de 30 días.</b> Si el material no es para ti, te devolvemos tu dinero.</p></div>
+  </aside>
+</main>
+
+<script type="module">
+import { fmt, renderPago, vigilarEstado } from './assets/pago.js';
+
+const $ = (id) => document.getElementById(id);
+const form = $('form'), btn = $('enviar');
+const BUMP_TXT = {
+  'acceso-de-por-vida': { si: '¡Sí, lo quiero!', d: 'Conserva tu material y tu aplicación con videoclases para siempre, sin fecha de vencimiento.' },
+  'grupo-vip': { si: '¡Sí, quiero entrar!', d: 'Entra al grupo de WhatsApp donde María comparte materiales nuevos cada semana.' },
+};
+let oferta = { baseAmount: 20000, bumps: [], product: { name: 'Paquete Completo de Caligrafía', amount: 20000 } };
+let metodos = [];
+
+// ---------- Estado local (solo conveniencia; el servidor decide todo) ----------
+const ss = { get(k) { try { return JSON.parse(sessionStorage.getItem(k)); } catch { return null; } }, set(k, v) { try { sessionStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+const ls = { get(k) { try { return JSON.parse(localStorage.getItem(k)); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} } };
+
+const utm = Object.fromEntries([...new URLSearchParams(location.search)].filter(([k]) => /^(utm_[a-z]+|fbclid|sck|src)$/.test(k)));
+if (Object.keys(utm).length) ss.set('utm', utm);
+
+function elegidos() { return [...form.querySelectorAll('input[name="bump"]:checked')].map((i) => i.value); }
+
+function pintarResumen() {
+  const sel = elegidos();
+  const lineas = [[oferta.product.name, oferta.product.amount, false], ...oferta.bumps.filter((b) => sel.includes(b.id)).map((b) => [b.name, b.amount, true])];
+  $('lineas').innerHTML = lineas.map(([n, a, b]) => `<li class="${b ? 'bump-linea' : ''}"><span>${n}</span><span>${fmt(a)}</span></li>`).join('');
+  const total = lineas.reduce((s, l) => s + l[1], 0);
+  $('total').textContent = fmt(total);
+  btn.innerHTML = `Generar mi pago · ${fmt(total)} <svg><use href="#i-flecha"/></svg>`;
+}
+
+function pintarBumps() {
+  $('bumps').innerHTML = oferta.bumps.map((b) => {
+    const t = BUMP_TXT[b.id] || { si: '¡Sí, lo quiero!', d: '' };
+    return `<label class="bump"><input type="checkbox" name="bump" value="${b.id}"><span class="caja"><svg><use href="#i-check"/></svg></span>
+      <span><span class="bump-t"><span class="si">${t.si}</span>${b.name}</span><span class="bump-d" style="display:block">${t.d}</span></span>
+      <span class="bump-p">+${fmt(b.amount).replace(' MXN', '')}</span></label>`;
+  }).join('');
+  $('bumps').addEventListener('change', pintarResumen);
+}
+
+function pintarMetodos() {
+  const box = $('metodos');
+  box.classList.remove('cargando'); box.removeAttribute('aria-busy');
+  if (!metodos.length) {
+    box.innerHTML = '<div class="aviso error">No hay formas de pago disponibles en este momento. Intenta de nuevo en unos minutos.</div>';
+    return;
+  }
+  const orden = (m) => (m.category === 'voucher' ? 1 : 0); // digitales primero, efectivo después
+  const desc = { spei: 'Transferencia desde tu banco', oxxo: 'Paga en efectivo en cualquier OXXO' };
+  box.className = 'metodos';
+  box.setAttribute('role', 'radiogroup');
+  box.setAttribute('aria-label', 'Forma de pago');
+  box.innerHTML = [...metodos].sort((a, b) => orden(a) - orden(b)).map((m, i) => `<label class="metodo"><input type="radio" name="paymentMethod" value="${m.code}" ${i === 0 ? 'checked' : ''}><span class="punto"></span>
+    ${m.iconUrl ? `<img src="${m.iconUrl}" alt="" onerror="this.remove()">` : ''}<span><b>${m.displayName}</b><small>${desc[m.code] || ''}</small></span></label>`).join('');
+  btn.disabled = false;
+}
+
+async function cargarOferta() {
+  try {
+    const r = await fetch('/api/payment-methods', { cache: 'no-store' });
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    oferta = d; metodos = d.methods || [];
+  } catch {
+    oferta.bumps = [
+      { id: 'acceso-de-por-vida', name: 'Acceso de por vida', amount: 5000 },
+      { id: 'grupo-vip', name: 'Grupo VIP de WhatsApp', amount: 5000 },
+    ];
+    metodos = [];
+    $('metodos').classList.remove('cargando');
+    $('metodos').innerHTML = '<div class="aviso error">No pudimos cargar las formas de pago. Revisa tu conexión y recarga la página.</div>';
+    pintarBumps(); pintarResumen();
+    return;
+  }
+  pintarBumps(); pintarResumen(); pintarMetodos();
+}
+
+// ---------- Errores en campos ----------
+function limpiarErrores() {
+  ['customerName', 'customerEmail', 'paymentMethod'].forEach((f) => { $('err-' + f).textContent = ''; $(f)?.removeAttribute('aria-invalid'); });
+  $('errorGeneral').classList.add('oculto');
+}
+function errorCampo(f, msg) {
+  $('err-' + f).textContent = msg;
+  const inp = $(f); if (inp) { inp.setAttribute('aria-invalid', 'true'); inp.focus(); }
+}
+function errorGeneral(msg) { const e = $('errorGeneral'); e.textContent = msg; e.classList.remove('oculto'); }
+
+function validarLocal(d) {
+  const partes = d.customerName.split(' ').filter(Boolean);
+  if (partes.length < 2) return ['customerName', 'Escribe tu nombre y al menos un apellido.'];
+  if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(d.customerEmail)) return ['customerEmail', 'Revisa tu correo: parece incompleto.'];
+  if (!d.paymentMethod) return ['paymentMethod', 'Elige una forma de pago.'];
+  return null;
+}
+
+// ---------- Envío con idempotencia ----------
+// Mismo pedido => mismo requestId (el servidor reutiliza la misma Idempotency-Key).
+// Pedido distinto o error definitivo => requestId nuevo.
+function requestIdPara(d) {
+  const huella = JSON.stringify([d.customerName, d.customerEmail, d.paymentMethod, d.bumps]);
+  const prev = ss.get('intento');
+  if (prev && prev.huella === huella && !prev.cerrado) return prev.id;
+  const id = crypto.randomUUID();
+  ss.set('intento', { id, huella });
+  return id;
+}
+function cerrarIntento() { const p = ss.get('intento'); if (p) ss.set('intento', { ...p, cerrado: true }); }
+
+async function enviar(datos, intento = 1) {
+  const r = await fetch('/api/checkout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(datos) });
+  const body = await r.json().catch(() => ({}));
+  if (r.ok) return body;
+  if ((r.status === 503 || body.retry) && intento < 4) {
+    btn.textContent = 'Conectando de nuevo…';
+    await new Promise((res) => setTimeout(res, 1500 * intento));
+    return enviar(datos, intento + 1);
+  }
+  const err = new Error(body.error || 'No pudimos generar tu pago. Intenta de nuevo.');
+  err.field = body.field; err.newRequest = body.newRequest;
+  throw err;
+}
+
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  limpiarErrores();
+  const d = {
+    customerName: $('customerName').value.replace(/\s+/g, ' ').trim(),
+    customerEmail: $('customerEmail').value.trim(),
+    paymentMethod: form.querySelector('input[name="paymentMethod"]:checked')?.value || '',
+    bumps: elegidos().sort(),
+  };
+  const fallo = validarLocal(d);
+  if (fallo) return errorCampo(...fallo);
+
+  btn.disabled = true;
+  const textoBtn = btn.innerHTML;
+  btn.textContent = 'Generando tu pago…';
+  try {
+    const pedido = await enviar({ ...d, requestId: requestIdPara(d), utm: ss.get('utm') || {} });
+    cerrarIntento();
+    ls.set('ultimoPedido', { ref: pedido.referenceId, t: pedido.accessToken, at: Date.now() });
+    mostrarPago(pedido);
+  } catch (err) {
+    if (err.newRequest) cerrarIntento();
+    if (err.field) errorCampo(err.field, err.message); else errorGeneral(err.message);
+    btn.disabled = false; btn.innerHTML = textoBtn;
+  }
+});
+
+function mostrarPago(pedido) {
+  form.classList.add('oculto');
+  document.body.classList.add('pagando');
+  const box = $('pago');
+  box.classList.remove('oculto');
+  renderPago(box, pedido);
+  if (pedido.status === 'paid') return irAGracias(pedido.referenceId, pedido.accessToken);
+  box.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  vigilarEstado(pedido.referenceId, pedido.accessToken, (s) => {
+    if (s.status === 'paid') irAGracias(pedido.referenceId, pedido.accessToken);
+    else if (s.status === 'confirming') $('estadoTxt').textContent = 'Recibimos tu pago. Estamos confirmándolo…';
+    else if (s.status === 'failed' || s.status === 'canceled') $('estadoTxt').textContent = 'Este pago no se completó. Puedes generar uno nuevo recargando la página.';
+  });
+}
+function irAGracias(ref, t) { location.href = `gracias.html?ref=${encodeURIComponent(ref)}&t=${encodeURIComponent(t)}`; }
+
+// Si el comprador recarga con un pedido reciente pendiente, volver a mostrar sus instrucciones.
+async function retomar() {
+  const u = ls.get('ultimoPedido');
+  if (!u || Date.now() - u.at > 3 * 86400000) return false;
+  try {
+    const r = await fetch(`/api/checkout-status?ref=${encodeURIComponent(u.ref)}&t=${encodeURIComponent(u.t)}`, { cache: 'no-store' });
+    if (!r.ok) return false;
+    const s = await r.json();
+    if (s.status === 'paid') { irAGracias(u.ref, u.t); return true; }
+    if (s.nextAction && !['failed', 'canceled', 'refunded'].includes(s.status)) {
+      mostrarPago(s);
+      const otro = document.createElement('p');
+      otro.innerHTML = '<button type="button" class="btn btn-sec" style="margin-top:16px">Hacer un pedido nuevo</button>';
+      otro.querySelector('button').onclick = () => { try { localStorage.removeItem('ultimoPedido'); } catch {} location.reload(); };
+      $('pago').appendChild(otro);
+      return true;
+    }
+  } catch {}
+  return false;
+}
+
+cargarOferta();
+retomar();
+</script>
+</body>
+</html>

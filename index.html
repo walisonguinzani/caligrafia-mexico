@@ -663,15 +663,14 @@ footer{background:var(--tinta);color:#AEB6D8;font-size:13px;padding-block:28px 1
 
 <script>
 /* ===== Configuración =====
-   Pega aquí la URL del checkout (integración Zenith). Mientras esté vacía,
-   los botones llevan a la sección de precio. Los parámetros UTM y fbclid
+   Página de checkout (integración Zenith). Los parámetros UTM y fbclid
    de la visita se pasan automáticamente al checkout. */
-const CHECKOUT_URL = '';
+const CHECKOUT_URL = 'checkout.html';
 
 (function(){
   if (CHECKOUT_URL) {
     try {
-      const src = new URLSearchParams(location.search), url = new URL(CHECKOUT_URL);
+      const src = new URLSearchParams(location.search), url = new URL(CHECKOUT_URL, location.href);
       for (const [k,v] of src) if (/^(utm_|fbclid|sck|src)/.test(k)) url.searchParams.set(k,v);
       document.querySelectorAll('[data-checkout]').forEach(a => a.href = url.toString());
     } catch(e) {}

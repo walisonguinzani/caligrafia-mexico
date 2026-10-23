@@ -1,0 +1,255 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { createHmac, randomUUID } from 'node:crypto';
+import { createZenithClient, ZenithError } from '../api/_lib/zenith.js';
+import { createMemoryStore } from '../api/_lib/store.js';
+import { createOrderCheckout, getOrderStatus, CheckoutError } from '../api/_lib/checkout-service.js';
+import { handleWebhook, verifySignature } from '../api/_lib/webhook.js';
+import { priceOrder } from '../api/_lib/pricing.js';
+import { nameError, emailError } from '../api/_lib/validate.js';
+
+const CATALOG = { paymentMethods: [
+  { code: 'oxxo', displayName: 'OXXO', category: 'voucher', iconUrl: 'https://api.zenithworld.com.br/elements/icons/oxxo.svg' },
+  { code: 'spei', displayName: 'SPEI', category: 'bank' },
+] };
+
+/** fetch falso que registra llamadas y responde según `handler`. */
+function fakeFetch(handler) {
+  const calls = [];
+  const fn = async (url, init = {}) => {
+    calls.push({ url, init, body: init.body ? JSON.parse(init.body) : null });
+    const work = Promise.resolve(handler(url, init, calls.length));
+    const r = init.signal
+      ? await Promise.race([work, new Promise((_, rej) => {
+          if (init.signal.aborted) rej(Object.assign(new Error('aborted'), { name: 'AbortError' }));
+          init.signal.addEventListener('abort', () => rej(Object.assign(new Error('aborted'), { name: 'AbortError' })));
+        })])
+      : await work;
+    if (r instanceof Error) throw r;
+    return new Response(r.body === undefined ? '' : JSON.stringify(r.body), { status: r.status ?? 200 });
+  };
+  fn.calls = calls;
+  return fn;
+}
+
+function okCheckout(body) {
+  return {
+    status: 201,
+    body: {
+      checkout: { id: 'checkout_1', referenceId: body.referenceId, amount: body.amount, currency: 'MXN', status: 'pending' },
+      payment: { status: 'pending' },
+      method: { code: body.paymentMethod, displayName: 'OXXO', iconUrl: 'https://api.zenithworld.com.br/elements/icons/oxxo.svg' },
+      nextAction: { type: 'voucher', code: '93000012345678', instructions: { title: 'Cómo pagar en OXXO', steps: ['Paso 1', 'Paso 2'] }, internal: 'x' },
+    },
+  };
+}
+
+function setup(checkoutHandler, opts = {}) {
+  const fetchImpl = fakeFetch(async (url, init, n) => {
+    if (url.includes('/integrations/payment-methods')) return { body: CATALOG };
+    if (url.endsWith('/integrations/checkouts') && init.method === 'POST') return checkoutHandler(JSON.parse(init.body), init, n);
+    if (url.includes('/integrations/checkouts/')) return { body: { checkout: { status: 'pending' } } };
+    return { status: 404, body: {} };
+  });
+  const zenith = createZenithClient({ publicKey: 'pk', secretKey: 'sk', fetchImpl, timeoutMs: opts.timeoutMs ?? 2000 });
+  const store = createMemoryStore();
+  return { fetchImpl, zenith, store };
+}
+
+const buyer = (extra = {}) => ({
+  requestId: randomUUID(),
+  customerName: 'María Fernanda López',
+  customerEmail: 'maria.lopez@gmail.com',
+  paymentMethod: 'oxxo',
+  bumps: [],
+  ...extra,
+});
+
+const checkoutCalls = (f) => f.calls.filter((c) => c.url.endsWith('/integrations/checkouts'));
+
+test('precios: base $200 y cada bump $50, sin confiar en el navegador', () => {
+  assert.equal(priceOrder([]).amount, 20000);
+  assert.equal(priceOrder(['grupo-vip']).amount, 25000);
+  assert.equal(priceOrder(['grupo-vip', 'acceso-de-por-vida', 'grupo-vip', 'inventado']).amount, 30000);
+});
+
+test('validación de nombre y correo', () => {
+  assert.equal(nameError('María López'), null);
+  assert.ok(nameError('María'));
+  assert.ok(nameError('M. L.'));
+  assert.ok(nameError('Aaaa Bbbb'));
+  assert.ok(nameError('Juan 123'));
+  assert.equal(emailError('maria@gmail.com'), null);
+  assert.ok(emailError('maria@mailinator.com'));
+  assert.ok(emailError('maria@'));
+});
+
+test('éxito: crea checkout con payload correcto y devuelve solo datos públicos', async () => {
+  const { fetchImpl, zenith, store } = setup((b) => okCheckout(b));
+  const out = await createOrderCheckout({ body: buyer({ bumps: ['acceso-de-por-vida'] }), siteUrl: 'https://tienda.mx', zenith, store });
+  const [call] = checkoutCalls(fetchImpl);
+  assert.equal(call.body.amount, 25000);
+  assert.equal(call.body.currency, 'MXN');
+  assert.equal(call.body.country, 'MX');
+  assert.equal(call.body.environment, 'production');
+  assert.equal(call.body.paymentMethod, 'oxxo');
+  assert.match(call.body.returnUrl, /^https:\/\/tienda\.mx\/gracias\.html\?ref=/);
+  assert.equal(call.body.cancelUrl, 'https://tienda.mx/checkout.html');
+  assert.ok(call.init.headers['Idempotency-Key']);
+  assert.equal(call.init.headers['X-API-Secret'], 'sk');
+  assert.equal(out.amount, 25000);
+  assert.equal(out.nextAction.type, 'voucher');
+  assert.equal(out.nextAction.code, '93000012345678');
+  assert.equal(out.nextAction.internal, undefined);
+  assert.equal(JSON.stringify(out).includes('sk'), false);
+});
+
+test('método fuera del catálogo se rechaza sin llamar a crear', async () => {
+  const { fetchImpl, zenith, store } = setup((b) => okCheckout(b));
+  await assert.rejects(createOrderCheckout({ body: buyer({ paymentMethod: 'tarjeta' }), siteUrl: 'https://x.mx', zenith, store }),
+    (e) => e instanceof CheckoutError && e.code === 'PAYMENT_METHOD_UNAVAILABLE');
+  assert.equal(checkoutCalls(fetchImpl).length, 0);
+});
+
+test('falla 422 de Zenith: mensaje en español y la intención queda cerrada', async () => {
+  const { fetchImpl, zenith, store } = setup(() => ({ status: 422, body: { code: 'CUSTOMER_NAME_INVALID', message: 'invalid' } }));
+  const body = buyer();
+  await assert.rejects(createOrderCheckout({ body, siteUrl: 'https://x.mx', zenith, store }),
+    (e) => e.status === 422 && /nombre/i.test(e.message) && e.extra.newRequest === true);
+  // El mismo requestId no vuelve a llamar a Zenith.
+  await assert.rejects(createOrderCheckout({ body, siteUrl: 'https://x.mx', zenith, store }), (e) => e.status === 422);
+  assert.equal(checkoutCalls(fetchImpl).length, 1);
+});
+
+test('timeout: resultado incierto, reintento usa la MISMA llave y el MISMO payload', async () => {
+  let n = 0;
+  const { fetchImpl, zenith, store } = setup(async (b) => {
+    n += 1;
+    if (n === 1) { await new Promise((r) => setTimeout(r, 200)); return okCheckout(b); }
+    return okCheckout(b);
+  }, { timeoutMs: 50 });
+  const body = buyer();
+  await assert.rejects(createOrderCheckout({ body, siteUrl: 'https://x.mx', zenith, store }), (e) => e.status === 503 && e.extra.retry === true);
+  const out = await createOrderCheckout({ body, siteUrl: 'https://x.mx', zenith, store });
+  const calls = checkoutCalls(fetchImpl);
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0].init.headers['Idempotency-Key'], calls[1].init.headers['Idempotency-Key']);
+  assert.deepEqual(calls[0].body, calls[1].body);
+  assert.equal(out.nextAction.type, 'voucher');
+});
+
+test('5xx también es incierto y se reintenta con la misma llave', async () => {
+  let n = 0;
+  const { fetchImpl, zenith, store } = setup((b) => (++n === 1 ? { status: 502, body: {} } : okCheckout(b)));
+  const body = buyer();
+  await assert.rejects(createOrderCheckout({ body, siteUrl: 'https://x.mx', zenith, store }), (e) => e.status === 503);
+  await createOrderCheckout({ body, siteUrl: 'https://x.mx', zenith, store });
+  const calls = checkoutCalls(fetchImpl);
+  assert.equal(calls[0].init.headers['Idempotency-Key'], calls[1].init.headers['Idempotency-Key']);
+});
+
+test('reintento después de éxito no crea otro checkout', async () => {
+  const { fetchImpl, zenith, store } = setup((b) => okCheckout(b));
+  const body = buyer();
+  const a = await createOrderCheckout({ body, siteUrl: 'https://x.mx', zenith, store });
+  const b = await createOrderCheckout({ body, siteUrl: 'https://x.mx', zenith, store });
+  assert.equal(checkoutCalls(fetchImpl).length, 1);
+  assert.equal(a.referenceId, b.referenceId);
+});
+
+test('mismo requestId con otro pedido se rechaza (exige nueva intención)', async () => {
+  const { zenith, store } = setup((b) => okCheckout(b));
+  const body = buyer();
+  await createOrderCheckout({ body, siteUrl: 'https://x.mx', zenith, store });
+  await assert.rejects(createOrderCheckout({ body: { ...body, bumps: ['grupo-vip'] }, siteUrl: 'https://x.mx', zenith, store }),
+    (e) => e.status === 409 && e.extra.newRequest === true);
+});
+
+test('respuesta con monto distinto no se acepta', async () => {
+  const { zenith, store } = setup((b) => { const r = okCheckout(b); r.body.checkout.amount = 1; return r; });
+  await assert.rejects(createOrderCheckout({ body: buyer(), siteUrl: 'https://x.mx', zenith, store }), (e) => e.code === 'CHECKOUT_MISMATCH');
+});
+
+test('sin credenciales no se llama a Zenith', async () => {
+  const fetchImpl = fakeFetch(() => ({ body: {} }));
+  const zenith = createZenithClient({ publicKey: '', secretKey: '', fetchImpl });
+  await assert.rejects(zenith.listPaymentMethods({ country: 'MX', currency: 'MXN' }), (e) => e instanceof ZenithError && e.code === 'ZENITH_NOT_CONFIGURED');
+  assert.equal(fetchImpl.calls.length, 0);
+});
+
+// ---------------- Webhook ----------------
+const SECRET = 'whsec_prueba';
+function signed(payload, { ts = Math.floor(Date.now() / 1000), eventId = randomUUID(), secret = SECRET } = {}) {
+  const rawBody = JSON.stringify(payload);
+  const sig = createHmac('sha256', secret).update(`${ts}.`).update(rawBody).digest('hex');
+  return { rawBody, headers: { 'X-Zenith-Event-Id': eventId, 'X-Zenith-Event-Type': payload.type, 'X-Zenith-Timestamp': String(ts), 'X-Zenith-Signature': sig }, ts };
+}
+
+async function paidOrderFixture() {
+  const { zenith, store } = setup((b) => okCheckout(b));
+  const out = await createOrderCheckout({ body: buyer({ bumps: ['grupo-vip'] }), siteUrl: 'https://x.mx', zenith, store });
+  return { zenith, store, out };
+}
+
+test('webhook válido marca pagado una sola vez y libera acceso', async () => {
+  const { zenith, store, out } = await paidOrderFixture();
+  let deliveries = 0;
+  const evt = signed({ type: 'payment.captured', data: { referenceId: out.referenceId, amount: 25000, currency: 'MXN' } });
+  const r1 = await handleWebhook({ ...evt, secret: SECRET, store, nowSeconds: evt.ts, onPaid: async () => { deliveries++; } });
+  assert.equal(r1.status, 200);
+  assert.equal(r1.body.outcome, 'paid');
+  // Webhook repetido (mismo X-Zenith-Event-Id): no se procesa de nuevo.
+  const r2 = await handleWebhook({ ...evt, secret: SECRET, store, nowSeconds: evt.ts, onPaid: async () => { deliveries++; } });
+  assert.equal(r2.body.duplicate, true);
+  // Otro evento de pago para el mismo pedido tampoco duplica la entrega.
+  const evt2 = signed({ type: 'checkout.succeeded', data: { referenceId: out.referenceId, amount: 25000, currency: 'MXN' } });
+  const r3 = await handleWebhook({ ...evt2, secret: SECRET, store, nowSeconds: evt2.ts, onPaid: async () => { deliveries++; } });
+  assert.equal(r3.body.outcome, 'already_paid');
+  assert.equal(deliveries, 1);
+
+  const st = await getOrderStatus({ referenceId: out.referenceId, token: out.accessToken, zenith, store, env: { ACCESS_URL: 'https://app.mx', VIP_GROUP_URL: 'https://chat.whatsapp.com/x' } });
+  assert.equal(st.status, 'paid');
+  assert.equal(st.access.materialUrl, 'https://app.mx');
+  assert.equal(st.access.vipUrl, 'https://chat.whatsapp.com/x');
+});
+
+test('webhook con firma inválida se rechaza', async () => {
+  const { store, out } = await paidOrderFixture();
+  const evt = signed({ type: 'payment.captured', data: { referenceId: out.referenceId, amount: 25000, currency: 'MXN' } }, { secret: 'otra' });
+  const r = await handleWebhook({ ...evt, secret: SECRET, store, nowSeconds: evt.ts });
+  assert.equal(r.status, 401);
+  assert.equal((await store.get(`order:${out.referenceId}`)).paid, false);
+});
+
+test('webhook con más de 300 s se rechaza', async () => {
+  const { store, out } = await paidOrderFixture();
+  const evt = signed({ type: 'payment.captured', data: { referenceId: out.referenceId, amount: 25000, currency: 'MXN' } });
+  const r = await handleWebhook({ ...evt, secret: SECRET, store, nowSeconds: evt.ts + 301 });
+  assert.equal(r.status, 401);
+});
+
+test('webhook con monto distinto no libera el pedido', async () => {
+  const { store, out } = await paidOrderFixture();
+  const evt = signed({ type: 'payment.captured', data: { referenceId: out.referenceId, amount: 100, currency: 'MXN' } });
+  const r = await handleWebhook({ ...evt, secret: SECRET, store, nowSeconds: evt.ts });
+  assert.equal(r.body.outcome, 'amount_mismatch');
+  assert.equal((await store.get(`order:${out.referenceId}`)).paid, false);
+});
+
+test('el estado de Zenith "succeeded" sin webhook no libera acceso', async () => {
+  const { store, out } = await paidOrderFixture();
+  const zenith = { getCheckout: async () => ({ checkout: { status: 'succeeded' } }) };
+  const st = await getOrderStatus({ referenceId: out.referenceId, token: out.accessToken, zenith, store, env: { ACCESS_URL: 'https://app.mx' } });
+  assert.equal(st.status, 'confirming');
+  assert.equal(st.access, undefined);
+});
+
+test('token incorrecto no muestra el pedido', async () => {
+  const { zenith, store, out } = await paidOrderFixture();
+  await assert.rejects(getOrderStatus({ referenceId: out.referenceId, token: 'x', zenith, store }), (e) => e.status === 404);
+});
+
+test('verifySignature rechaza firmas mal formadas', () => {
+  assert.equal(verifySignature({ rawBody: '{}', timestamp: '1', signature: 'zz', secret: 's', nowSeconds: 1 }), false);
+  assert.equal(verifySignature({ rawBody: '{}', timestamp: null, signature: 'aa', secret: 's', nowSeconds: 1 }), false);
+});
