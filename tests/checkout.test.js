@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHmac, randomUUID } from 'node:crypto';
-import { createZenithClient, ZenithError } from '../api/_lib/zenith.js';
+import { createZenithClient, ZenithError, findMethodList } from '../api/_lib/zenith.js';
 import { createMemoryStore } from '../api/_lib/store.js';
 import { createOrderCheckout, getOrderStatus, CheckoutError } from '../api/_lib/checkout-service.js';
 import { handleWebhook, verifySignature } from '../api/_lib/webhook.js';
@@ -299,4 +299,15 @@ test('si el catálogo no pide RFC, SPEI se crea solo con nombre y correo', async
   await createOrderCheckout({ body: buyer({ paymentMethod: 'spei' }), siteUrl: 'https://x.mx', zenith, store });
   const [call] = checkoutCalls(fetchImpl);
   assert.equal(call.body.metadata.documentNumber, undefined);
+});
+
+test('lee la lista de métodos en distintos formatos de respuesta', () => {
+  const m = [{ code: 'oxxo' }, { code: 'spei' }];
+  assert.equal(findMethodList(m).length, 2);
+  assert.equal(findMethodList({ paymentMethods: m }).length, 2);
+  assert.equal(findMethodList({ data: { methods: m } }).length, 2);
+  assert.equal(findMethodList({ data: { items: [{ paymentMethod: 'spei', displayName: 'SPEI' }] } })[0].paymentMethod, 'spei');
+  assert.deepEqual(findMethodList({ methods: { oxxo: { displayName: 'OXXO' }, spei: { displayName: 'SPEI' } } }).map((x) => x.code), ['oxxo', 'spei']);
+  assert.deepEqual(findMethodList({ country: 'MX', methods: ['oxxo', 'spei'] }).map((x) => x.code), ['oxxo', 'spei']);
+  assert.equal(findMethodList({ ok: true }).length, 0);
 });

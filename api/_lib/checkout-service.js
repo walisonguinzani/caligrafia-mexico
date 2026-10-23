@@ -44,7 +44,9 @@ function makeReferenceId(now) {
  */
 export async function listMethods(zenith) {
   const raw = await zenith.listPaymentMethods({ country: COUNTRY, currency: CURRENCY });
-  return raw.map(publicMethod).filter(Boolean);
+  return raw
+    .filter((m) => m.enabled !== false && m.available !== false && m.active !== false && m.status !== 'disabled')
+    .map(publicMethod).filter(Boolean);
 }
 
 function publicResult(order) {

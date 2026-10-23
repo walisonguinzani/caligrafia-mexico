@@ -1,12 +1,17 @@
 import { listMethods } from './_lib/checkout-service.js';
 import { json } from './_lib/http.js';
 import { priceOrder, BUMPS, PRODUCT, CURRENCY } from './_lib/pricing.js';
-import { createZenithClient } from './_lib/zenith.js';
+import { createZenithClient, shapeOf } from './_lib/zenith.js';
 
 // GET /api/payment-methods → formas de pago disponibles ahora + precios de la oferta.
-export async function GET() {
+export async function GET(request) {
   try {
-    const methods = await listMethods(createZenithClient());
+    const zenith = createZenithClient();
+    // ?estructura=1 → muestra solo nombres de campos y tipos de la respuesta de Zenith (sin valores).
+    if (request && new URL(request.url).searchParams.get('estructura') === '1') {
+      return json({ shape: shapeOf(await zenith.rawPaymentMethods({ country: 'MX', currency: 'MXN' })) });
+    }
+    const methods = await listMethods(zenith);
     return json({
       methods,
       currency: CURRENCY,

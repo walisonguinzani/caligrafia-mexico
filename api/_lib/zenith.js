@@ -98,8 +98,7 @@ export function createZenithClient(opts = {}) {
     async listPaymentMethods(q) {
       const qs = new URLSearchParams({ country: q.country, currency: q.currency, environment });
       const data = await request('GET', `/integrations/payment-methods?${qs}`);
-      const list = Array.isArray(data) ? data : data?.paymentMethods ?? data?.methods ?? data?.data ?? [];
-      return /** @type {any[]} */ (list);
+      return findMethodList(data);
     },
 
     /**
@@ -110,6 +109,12 @@ export function createZenithClient(opts = {}) {
     async createCheckout(payload, idempotencyKey) {
       if (!idempotencyKey) throw new ZenithError('Falta Idempotency-Key.', { code: 'IDEMPOTENCY_KEY_REQUIRED' });
       return request('POST', '/integrations/checkouts', { body: { ...payload, environment }, idempotencyKey });
+    },
+
+    /** Respuesta cruda del catálogo (solo para diagnóstico de estructura). @param {{ country: string, currency: string }} q */
+    async rawPaymentMethods(q) {
+      const qs = new URLSearchParams({ country: q.country, currency: q.currency, environment });
+      return request('GET', `/integrations/payment-methods?${qs}`);
     },
 
     /** @param {string} checkoutId */
@@ -124,7 +129,7 @@ export function createZenithClient(opts = {}) {
  * @param {any} m
  */
 export function publicMethod(m) {
-  const code = m?.code ?? m?.paymentMethod ?? m?.id;
+  const code = m?.code ?? m?.paymentMethod ?? m?.methodCode ?? m?.method ?? m?.slug ?? m?.id;
   if (!code || typeof code !== 'string') return null;
   return {
     code,
@@ -165,4 +170,43 @@ export function publicNextAction(na) {
     };
   }
   return out;
+}
+
+const METHOD_KEYS = ['code', 'paymentMethod', 'method', 'methodCode', 'slug', 'id'];
+const isMethod = (o) => o && typeof o === 'object' && !Array.isArray(o) && METHOD_KEYS.some((k) => typeof o[k] === 'string');
+
+/**
+ * Encuentra la lista de métodos en la respuesta, sin importar cómo venga anidada
+ * (array directo, { paymentMethods }, { data: { methods } }, { methods: { oxxo: {...} } }, etc.).
+ * @param {unknown} data
+ * @returns {any[]}
+ */
+export function findMethodList(data, depth = 0) {
+  if (depth > 5 || data == null) return [];
+  if (Array.isArray(data)) {
+    if (data.some(isMethod)) return data.filter(isMethod);
+    if (data.every((x) => typeof x === 'string')) return data.map((code) => ({ code }));
+    for (const x of data) { const r = findMethodList(x, depth + 1); if (r.length) return r; }
+    return [];
+  }
+  if (typeof data !== 'object') return [];
+  const preferred = ['paymentMethods', 'methods', 'availableMethods', 'items', 'results', 'data', 'catalog'];
+  for (const k of preferred) {
+    if (k in data) { const r = findMethodList(data[k], depth + 1); if (r.length) return r; }
+  }
+  // Objeto indexado por código: { oxxo: {...}, spei: {...} }
+  const vals = Object.entries(data).filter(([, v]) => v && typeof v === 'object' && !Array.isArray(v));
+  if (vals.length && vals.every(([, v]) => ['displayName', 'name', 'category', 'enabled', 'available', 'requiredPayloadFields'].some((f) => f in v))) {
+    return vals.map(([k, v]) => ({ code: k, ...v }));
+  }
+  for (const v of Object.values(data)) { const r = findMethodList(v, depth + 1); if (r.length) return r; }
+  return [];
+}
+
+/** Estructura de la respuesta (solo nombres de campos y tipos), para diagnóstico. */
+export function shapeOf(v, depth = 0) {
+  if (depth > 4) return '…';
+  if (Array.isArray(v)) return v.length ? [shapeOf(v[0], depth + 1), `(${v.length})`] : [];
+  if (v && typeof v === 'object') return Object.fromEntries(Object.entries(v).slice(0, 25).map(([k, x]) => [k, shapeOf(x, depth + 1)]));
+  return typeof v;
 }
