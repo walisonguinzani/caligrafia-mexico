@@ -10,7 +10,7 @@ import { nameError, emailError } from '../api/_lib/validate.js';
 
 const CATALOG = { paymentMethods: [
   { code: 'oxxo', displayName: 'OXXO', category: 'voucher', iconUrl: 'https://api.zenithworld.com.br/elements/icons/oxxo.svg' },
-  { code: 'spei', displayName: 'SPEI', category: 'bank' },
+  { code: 'spei', displayName: 'SPEI', category: 'bank', requiredPayloadFields: ['metadata.documentNumber', 'metadata.birthDate', 'metadata.birthCountry'] },
 ] };
 
 /** fetch falso que registra llamadas y responde según `handler`. */
@@ -252,4 +252,51 @@ test('token incorrecto no muestra el pedido', async () => {
 test('verifySignature rechaza firmas mal formadas', () => {
   assert.equal(verifySignature({ rawBody: '{}', timestamp: '1', signature: 'zz', secret: 's', nowSeconds: 1 }), false);
   assert.equal(verifySignature({ rawBody: '{}', timestamp: null, signature: 'aa', secret: 's', nowSeconds: 1 }), false);
+});
+
+test('SPEI exige RFC, nacimiento y país, y los envía en metadata', async () => {
+  const { fetchImpl, zenith, store } = setup((b) => okCheckout(b));
+  await assert.rejects(createOrderCheckout({ body: buyer({ paymentMethod: 'spei' }), siteUrl: 'https://x.mx', zenith, store }),
+    (e) => e.status === 422 && e.extra.field === 'documentNumber');
+  await assert.rejects(createOrderCheckout({ body: buyer({ paymentMethod: 'spei', documentNumber: 'XAXX010101000', birthDate: '1990-01-15', birthCountry: 'MX' }), siteUrl: 'https://x.mx', zenith, store }),
+    (e) => e.extra.field === 'documentNumber');
+  await assert.rejects(createOrderCheckout({ body: buyer({ paymentMethod: 'spei', documentNumber: 'LOMF900115AB1', birthDate: '2015-01-01', birthCountry: 'MX' }), siteUrl: 'https://x.mx', zenith, store }),
+    (e) => e.extra.field === 'birthDate');
+  await createOrderCheckout({ body: buyer({ paymentMethod: 'spei', documentNumber: 'lomf-900115-ab1', birthDate: '1990-01-15', birthCountry: 'mx' }), siteUrl: 'https://x.mx', zenith, store });
+  const [call] = checkoutCalls(fetchImpl);
+  assert.equal(call.body.paymentMethod, 'spei');
+  assert.equal(call.body.metadata.firstName, 'María');
+  assert.equal(call.body.metadata.lastName, 'Fernanda López');
+});
+
+test('SPEI usa nombre y apellidos tal como los escribió el comprador', async () => {
+  const { fetchImpl, zenith, store } = setup((b) => okCheckout(b));
+  await createOrderCheckout({ body: buyer({ paymentMethod: 'spei', firstName: 'María Fernanda', lastName: 'López', documentNumber: 'LOMF900115AB1', birthDate: '1990-01-15', birthCountry: 'MX' }), siteUrl: 'https://x.mx', zenith, store });
+  const [call] = checkoutCalls(fetchImpl);
+  assert.equal(call.body.metadata.firstName, 'María Fernanda');
+  assert.equal(call.body.metadata.lastName, 'López');
+  assert.equal(call.body.metadata.documentType, 'rfc');
+  assert.equal(call.body.metadata.documentNumber, 'LOMF900115AB1');
+  assert.equal(call.body.metadata.birthDate, '1990-01-15');
+  assert.equal(call.body.metadata.birthCountry, 'MX');
+});
+
+test('OXXO no pide ni envía datos de SPEI', async () => {
+  const { fetchImpl, zenith, store } = setup((b) => okCheckout(b));
+  await createOrderCheckout({ body: buyer(), siteUrl: 'https://x.mx', zenith, store });
+  const [call] = checkoutCalls(fetchImpl);
+  assert.equal(call.body.metadata.documentNumber, undefined);
+});
+
+test('si el catálogo no pide RFC, SPEI se crea solo con nombre y correo', async () => {
+  const fetchImpl = fakeFetch(async (url, init) => {
+    if (url.includes('/integrations/payment-methods')) return { body: { paymentMethods: [{ code: 'spei', displayName: 'SPEI', category: 'bank', requiredPayloadFields: ['customerName', 'customerEmail'] }] } };
+    if (url.endsWith('/integrations/checkouts')) return okCheckout(JSON.parse(init.body));
+    return { body: {} };
+  });
+  const zenith = createZenithClient({ publicKey: 'pk', secretKey: 'sk', fetchImpl });
+  const store = createMemoryStore();
+  await createOrderCheckout({ body: buyer({ paymentMethod: 'spei' }), siteUrl: 'https://x.mx', zenith, store });
+  const [call] = checkoutCalls(fetchImpl);
+  assert.equal(call.body.metadata.documentNumber, undefined);
 });

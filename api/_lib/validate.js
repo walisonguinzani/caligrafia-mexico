@@ -49,3 +49,44 @@ export function emailError(email) {
 export function isUuid(v) {
   return typeof v === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v);
 }
+
+// ---- Datos extra que exige SPEI (identificación fiscal del pagador) ----
+const RFC_RE = /^([A-ZÑ&]{3,4})(\d{2})(\d{2})(\d{2})([A-Z\d]{2}[A\d])$/;
+
+/** @param {unknown} v */
+export function cleanRfc(v) {
+  return typeof v === 'string' ? v.toUpperCase().replace(/[\s-]/g, '') : '';
+}
+
+/** @param {string} rfc @returns {string|null} */
+export function rfcError(rfc) {
+  if (!rfc) return 'Escribe tu RFC con homoclave.';
+  const m = rfc.match(RFC_RE);
+  if (!m) return 'Revisa tu RFC: son 13 caracteres, por ejemplo GOMA900115AB1.';
+  const mm = Number(m[3]), dd = Number(m[4]);
+  if (mm < 1 || mm > 12 || dd < 1 || dd > 31) return 'Revisa tu RFC: la fecha no es válida.';
+  if (/^XAXX|^XEXX/.test(rfc)) return 'Usa tu RFC personal, no el genérico.';
+  return null;
+}
+
+/** @param {unknown} v @param {Date} [today] @returns {string|null} */
+export function birthDateError(v, today = new Date()) {
+  if (typeof v !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(v)) return 'Escribe tu fecha de nacimiento.';
+  const d = new Date(v + 'T00:00:00Z');
+  if (Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== v) return 'Revisa tu fecha de nacimiento.';
+  const age = (today.getTime() - d.getTime()) / (365.25 * 86400000);
+  if (age < 18) return 'Para pagar por SPEI necesitas ser mayor de edad.';
+  if (age > 110) return 'Revisa tu fecha de nacimiento.';
+  return null;
+}
+
+/** @param {unknown} v */
+export function cleanCountry(v) {
+  return typeof v === 'string' && /^[A-Za-z]{2}$/.test(v.trim()) ? v.trim().toUpperCase() : '';
+}
+
+/** Separa nombre(s) y apellido(s): primer palabra = nombre, el resto = apellidos. @param {string} full */
+export function splitName(full) {
+  const parts = full.split(' ');
+  return { firstName: parts[0], lastName: parts.slice(1).join(' ') };
+}

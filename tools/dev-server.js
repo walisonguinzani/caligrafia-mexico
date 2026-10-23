@@ -31,7 +31,7 @@ if (MOCK) {
     const send = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
     if (u.includes('/integrations/payment-methods')) {
       return send({ paymentMethods: [
-        { code: 'spei', displayName: 'SPEI', category: 'bank', iconUrl: 'https://api.zenithworld.com.br/elements/icons/spei.svg' },
+        { code: 'spei', displayName: 'SPEI', category: 'bank', iconUrl: 'https://api.zenithworld.com.br/elements/icons/spei.svg', requiredPayloadFields: ['customerName', 'customerEmail'] },
         { code: 'oxxo', displayName: 'OXXO', category: 'voucher', iconUrl: 'https://api.zenithworld.com.br/elements/icons/oxxo.svg' },
       ] });
     }

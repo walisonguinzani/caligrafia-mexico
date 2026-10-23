@@ -28,11 +28,17 @@
     <form id="form" novalidate>
       <section class="panel" aria-labelledby="p1">
         <div class="paso"><span class="paso-n">1</span><h2 id="p1">Tus datos</h2></div>
-        <div class="campo">
-          <label for="customerName">Nombre y apellido</label>
-          <input id="customerName" name="customerName" autocomplete="name" required placeholder="Como aparece en tu identificación">
-          <span class="err" id="err-customerName" role="alert"></span>
+        <div class="kyc-fila">
+          <div class="campo">
+            <label for="firstName">Nombre(s)</label>
+            <input id="firstName" name="firstName" autocomplete="given-name" required placeholder="María Fernanda">
+          </div>
+          <div class="campo">
+            <label for="lastName">Apellidos</label>
+            <input id="lastName" name="lastName" autocomplete="family-name" required placeholder="López García">
+          </div>
         </div>
+        <span class="err" id="err-customerName" role="alert" style="display:block;margin:-8px 0 12px"></span>
         <div class="campo">
           <label for="customerEmail">Correo electrónico</label>
           <input id="customerEmail" name="customerEmail" type="email" inputmode="email" autocomplete="email" required placeholder="tucorreo@gmail.com">
@@ -50,6 +56,31 @@
         <div class="paso"><span class="paso-n">3</span><h2 id="p3">Forma de pago</h2></div>
         <div id="metodos" class="cargando" aria-busy="true"><span></span><span></span></div>
         <span class="err" id="err-paymentMethod" role="alert" style="display:block;margin-top:8px"></span>
+        <div id="kyc" class="kyc oculto">
+          <p class="ayuda" style="margin-bottom:14px">Para pagar por SPEI, tu banco pide estos datos del titular de la cuenta.</p>
+          <div class="campo">
+            <label for="documentNumber">RFC con homoclave</label>
+            <input id="documentNumber" name="documentNumber" autocomplete="off" autocapitalize="characters" maxlength="13" placeholder="13 caracteres" spellcheck="false">
+            <span class="err" id="err-documentNumber" role="alert"></span>
+          </div>
+          <div class="kyc-fila">
+            <div class="campo">
+              <label for="birthDate">Fecha de nacimiento</label>
+              <input id="birthDate" name="birthDate" type="date" autocomplete="bday" min="1915-01-01">
+              <span class="err" id="err-birthDate" role="alert"></span>
+            </div>
+            <div class="campo">
+              <label for="birthCountry">País de nacimiento</label>
+              <select id="birthCountry" name="birthCountry" autocomplete="country">
+                <option value="MX" selected>México</option><option value="US">Estados Unidos</option><option value="GT">Guatemala</option>
+                <option value="SV">El Salvador</option><option value="HN">Honduras</option><option value="CO">Colombia</option>
+                <option value="VE">Venezuela</option><option value="CU">Cuba</option><option value="AR">Argentina</option>
+                <option value="ES">España</option><option value="BR">Brasil</option>
+              </select>
+              <span class="err" id="err-birthCountry" role="alert"></span>
+            </div>
+          </div>
+        </div>
         <div id="errorGeneral" class="aviso error oculto" role="alert" style="margin-top:16px"></div>
         <p style="margin-top:20px"><button class="btn" id="enviar" type="submit" disabled>Generar mi pago <svg><use href="#i-flecha"/></svg></button></p>
         <p class="legal">Al continuar aceptas recibir tu acceso y avisos de tu pedido por correo.</p>
@@ -130,6 +161,9 @@ function pintarMetodos() {
   box.innerHTML = [...metodos].sort((a, b) => orden(a) - orden(b)).map((m, i) => `<label class="metodo"><input type="radio" name="paymentMethod" value="${m.code}" ${i === 0 ? 'checked' : ''}><span class="punto"></span>
     ${m.iconUrl ? `<img src="${m.iconUrl}" alt="" onerror="this.remove()">` : ''}<span><b>${m.displayName}</b><small>${desc[m.code] || ''}</small></span></label>`).join('');
   btn.disabled = false;
+  const pideKyc = (code) => (metodos.find((m) => m.code === code)?.requiredPayloadFields || []).some((f) => /documentNumber|birthDate|rfc/i.test(f));
+  const sync = () => { const c = form.querySelector('input[name="paymentMethod"]:checked')?.value; $('kyc').classList.toggle('oculto', !pideKyc(c)); form.dataset.kyc = pideKyc(c) ? '1' : ''; };
+  box.addEventListener('change', sync); sync();
 }
 
 async function cargarOferta() {
@@ -154,10 +188,13 @@ async function cargarOferta() {
 
 // ---------- Errores en campos ----------
 function limpiarErrores() {
-  ['customerName', 'customerEmail', 'paymentMethod'].forEach((f) => { $('err-' + f).textContent = ''; $(f)?.removeAttribute('aria-invalid'); });
+  ['customerName', 'customerEmail', 'paymentMethod', 'documentNumber', 'birthDate', 'birthCountry'].forEach((f) => { $('err-' + f).textContent = ''; $(f)?.removeAttribute('aria-invalid'); });
+  ['firstName', 'lastName'].forEach((f) => $(f).removeAttribute('aria-invalid'));
   $('errorGeneral').classList.add('oculto');
 }
 function errorCampo(f, msg) {
+  if (f === 'firstName' || f === 'lastName') { $('err-customerName').textContent = msg; const i = $(f); i.setAttribute('aria-invalid', 'true'); i.focus(); return; }
+  if (f === 'customerName') { $('err-customerName').textContent = msg; ['firstName', 'lastName'].forEach((x) => $(x).setAttribute('aria-invalid', 'true')); $('firstName').focus(); return; }
   $('err-' + f).textContent = msg;
   const inp = $(f); if (inp) { inp.setAttribute('aria-invalid', 'true'); inp.focus(); }
 }
@@ -168,6 +205,10 @@ function validarLocal(d) {
   if (partes.length < 2) return ['customerName', 'Escribe tu nombre y al menos un apellido.'];
   if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(d.customerEmail)) return ['customerEmail', 'Revisa tu correo: parece incompleto.'];
   if (!d.paymentMethod) return ['paymentMethod', 'Elige una forma de pago.'];
+  if (form.dataset.kyc) {
+    if (!/^[A-ZÑ&]{3,4}\d{6}[A-Z\d]{3}$/.test(d.documentNumber)) return ['documentNumber', 'Revisa tu RFC: son 13 caracteres, por ejemplo GOMA900115AB1.'];
+    if (!d.birthDate) return ['birthDate', 'Escribe tu fecha de nacimiento.'];
+  }
   return null;
 }
 
@@ -175,7 +216,7 @@ function validarLocal(d) {
 // Mismo pedido => mismo requestId (el servidor reutiliza la misma Idempotency-Key).
 // Pedido distinto o error definitivo => requestId nuevo.
 function requestIdPara(d) {
-  const huella = JSON.stringify([d.customerName, d.customerEmail, d.paymentMethod, d.bumps]);
+  const huella = JSON.stringify([d.customerName, d.customerEmail, d.paymentMethod, d.bumps, d.documentNumber || '', d.birthDate || '', d.birthCountry || '']);
   const prev = ss.get('intento');
   if (prev && prev.huella === huella && !prev.cerrado) return prev.id;
   const id = crypto.randomUUID();
@@ -202,12 +243,19 @@ form.addEventListener('submit', async (e) => {
   e.preventDefault();
   limpiarErrores();
   const d = {
-    customerName: $('customerName').value.replace(/\s+/g, ' ').trim(),
+    firstName: $('firstName').value.replace(/\s+/g, ' ').trim(),
+    lastName: $('lastName').value.replace(/\s+/g, ' ').trim(),
     customerEmail: $('customerEmail').value.trim(),
     paymentMethod: form.querySelector('input[name="paymentMethod"]:checked')?.value || '',
     bumps: elegidos().sort(),
   };
-  const fallo = validarLocal(d);
+  if (form.dataset.kyc) {
+    d.documentNumber = $('documentNumber').value.toUpperCase().replace(/[\s-]/g, '');
+    d.birthDate = $('birthDate').value;
+    d.birthCountry = $('birthCountry').value;
+  }
+  d.customerName = `${d.firstName} ${d.lastName}`.trim();
+  const fallo = !d.firstName ? ['firstName', 'Escribe tu nombre.'] : !d.lastName ? ['lastName', 'Escribe tus apellidos.'] : validarLocal(d);
   if (fallo) return errorCampo(...fallo);
 
   btn.disabled = true;

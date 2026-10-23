@@ -2,7 +2,7 @@
 
 import { randomUUID, timingSafeEqual } from 'node:crypto';
 import { COUNTRY, CURRENCY, priceOrder } from './pricing.js';
-import { cleanEmail, cleanName, emailError, isUuid, nameError } from './validate.js';
+import { birthDateError, cleanCountry, cleanEmail, cleanName, cleanRfc, emailError, isUuid, nameError, rfcError, splitName } from './validate.js';
 import { ZenithError, publicMethod, publicNextAction } from './zenith.js';
 
 const DAY = 86400;
@@ -28,8 +28,11 @@ const ZENITH_MESSAGES = {
 
 /** Huella estable de lo que el comprador pidió, para detectar cambios entre reintentos. */
 function fingerprint(o) {
-  return JSON.stringify([o.amount, o.currency, o.paymentMethod, o.customerName, o.customerEmail, o.bumps]);
+  return JSON.stringify([o.amount, o.currency, o.paymentMethod, o.customerName, o.customerEmail, o.bumps, o.kyc ?? null]);
 }
+
+/** Métodos que exigen identificación del pagador (RFC, nacimiento). */
+export const KYC_METHODS = new Set(['spei']);
 
 function makeReferenceId(now) {
   return `cal-${now.toString(36)}-${randomUUID().slice(0, 8)}`;
@@ -84,8 +87,25 @@ export async function createOrderCheckout(ctx) {
   if (errEmail) throw new CheckoutError(422, 'CUSTOMER_EMAIL_INVALID', errEmail, { field: 'customerEmail' });
 
   const paymentMethod = typeof body.paymentMethod === 'string' ? body.paymentMethod : '';
+  // Datos de identificación: solo si el catálogo de Zenith los exige para este método.
+  let catalog = null;
+  try { catalog = (await listMethods(zenith)).find((x) => x.code === paymentMethod) ?? null; } catch { catalog = null; }
+  const needsKyc = KYC_METHODS.has(paymentMethod) && (catalog?.requiredPayloadFields ?? []).some((f) => /documentNumber|birthDate|rfc/i.test(f));
+  let kyc = null;
+  if (needsKyc) {
+    const documentNumber = cleanRfc(body.documentNumber);
+    const errRfc = rfcError(documentNumber);
+    if (errRfc) throw new CheckoutError(422, 'DOCUMENT_INVALID', errRfc, { field: 'documentNumber' });
+    const errBirth = birthDateError(body.birthDate);
+    if (errBirth) throw new CheckoutError(422, 'BIRTH_DATE_INVALID', errBirth, { field: 'birthDate' });
+    const birthCountry = cleanCountry(body.birthCountry);
+    if (!birthCountry) throw new CheckoutError(422, 'BIRTH_COUNTRY_INVALID', 'Elige tu país de nacimiento.', { field: 'birthCountry' });
+    const fn = cleanName(body.firstName), ln = cleanName(body.lastName);
+    const names = fn && ln && `${fn} ${ln}` === customerName ? { firstName: fn, lastName: ln } : splitName(customerName);
+    kyc = { ...names, documentType: 'rfc', documentNumber, birthDate: body.birthDate, birthCountry };
+  }
   const priced = priceOrder(body.bumps);
-  const core = { amount: priced.amount, currency: CURRENCY, paymentMethod, customerName, customerEmail, bumps: priced.bumps };
+  const core = { amount: priced.amount, currency: CURRENCY, paymentMethod, customerName, customerEmail, bumps: priced.bumps, kyc };
   const fp = fingerprint(core);
 
   const intentKey = `intent:${requestId}`;
@@ -103,13 +123,14 @@ export async function createOrderCheckout(ctx) {
     // Reintento de una intención sin resultado: misma llave, mismo payload.
   } else {
     // Validar método contra el catálogo vigente antes de crear la intención.
-    let methods;
-    try {
-      methods = await listMethods(zenith);
-    } catch (err) {
-      throw new CheckoutError(503, 'METHODS_UNAVAILABLE', 'No pudimos cargar las formas de pago. Intenta en unos segundos.', { retry: true });
+    if (!catalog) {
+      let methods;
+      try { methods = await listMethods(zenith); } catch {
+        throw new CheckoutError(503, 'METHODS_UNAVAILABLE', 'No pudimos cargar las formas de pago. Intenta en unos segundos.', { retry: true });
+      }
+      catalog = methods.find((x) => x.code === paymentMethod) ?? null;
     }
-    const m = methods.find((x) => x.code === paymentMethod);
+    const m = catalog;
     if (!m) throw new CheckoutError(422, 'PAYMENT_METHOD_UNAVAILABLE', 'Esa forma de pago no está disponible. Elige otra.', { field: 'paymentMethod' });
     if (m.amountLimits?.max && priced.amount > m.amountLimits.max) {
       throw new CheckoutError(422, 'AMOUNT_ABOVE_LIMIT', 'El total supera el límite de esa forma de pago. Elige otra.', { field: 'paymentMethod' });
@@ -131,7 +152,7 @@ export async function createOrderCheckout(ctx) {
       customerEmail,
       returnUrl: `${base}/gracias.html?ref=${encodeURIComponent(referenceId)}&t=${encodeURIComponent(accessToken)}`,
       cancelUrl: `${base}/checkout.html`,
-      metadata: { customerName, customerEmail, bumps: priced.bumps.join(',') || 'ninguno' },
+      metadata: { customerName, customerEmail, bumps: priced.bumps.join(',') || 'ninguno', ...(kyc ?? {}) },
     };
     intent = { requestId, referenceId, idempotencyKey: newId(), fingerprint: fp, zenithPayload, createdAt: now() };
     const created = await store.setIfAbsent(intentKey, intent, { ttlSeconds: INTENT_TTL });
