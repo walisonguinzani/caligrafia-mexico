@@ -22,12 +22,14 @@
 </main>
 <script type="module">
 import { renderPago, vigilarEstado } from './assets/pago.js';
+import { trackOrder } from './assets/meta.js';
 const caja = document.getElementById('caja');
 const q = new URLSearchParams(location.search);
 const ref = q.get('ref'), t = q.get('t');
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 function pagado(s) {
+  trackOrder('Purchase', s.referenceId, s.amount / 100, `purchase_${s.referenceId}`);
   const a = s.access || {};
   caja.innerHTML = `<p class="hola">¡Gracias!</p><h1 style="font-size:32px">Tu pago está confirmado</h1>
     <p style="margin-top:10px;color:var(--texto-2)">Ya tienes tu Paquete Completo de Caligrafía. ¡Que Dios te bendiga y disfruta cada trazo!</p>

@@ -12,5 +12,8 @@ export async function GET() {
     SITE_URL: has('SITE_URL'),
     ACCESS_URL: has('ACCESS_URL'),
     VIP_GROUP_URL: has('VIP_GROUP_URL'),
+    META_CAPI_TOKEN: has('META_CAPI_TOKEN'),
+    META_PIXEL_ID: process.env.META_PIXEL_ID || '1440145158085987 (por defecto)',
+    META_TEST_EVENT_CODE: has('META_TEST_EVENT_CODE'),
   });
 }

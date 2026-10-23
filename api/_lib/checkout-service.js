@@ -4,6 +4,7 @@ import { randomUUID, timingSafeEqual } from 'node:crypto';
 import { COUNTRY, CURRENCY, priceOrder } from './pricing.js';
 import { birthDateError, cleanCountry, cleanEmail, cleanName, cleanRfc, emailError, isUuid, nameError, rfcError, splitName } from './validate.js';
 import { ZenithError, publicMethod, publicNextAction } from './zenith.js';
+import { normalizePhone } from './meta.js';
 
 const DAY = 86400;
 const INTENT_TTL = 30 * DAY;
@@ -28,7 +29,7 @@ const ZENITH_MESSAGES = {
 
 /** Huella estable de lo que el comprador pidió, para detectar cambios entre reintentos. */
 function fingerprint(o) {
-  return JSON.stringify([o.amount, o.currency, o.paymentMethod, o.customerName, o.customerEmail, o.bumps, o.kyc ?? null]);
+  return JSON.stringify([o.amount, o.currency, o.paymentMethod, o.customerName, o.customerEmail, o.bumps, o.kyc ?? null, o.phone ?? '']);
 }
 
 /** Métodos que exigen identificación del pagador (RFC, nacimiento). */
@@ -107,7 +108,15 @@ export async function createOrderCheckout(ctx) {
     kyc = { ...names, documentType: 'rfc', documentNumber, birthDate: body.birthDate, birthCountry };
   }
   const priced = priceOrder(body.bumps);
-  const core = { amount: priced.amount, currency: CURRENCY, paymentMethod, customerName, customerEmail, bumps: priced.bumps, kyc };
+  const phone = normalizePhone(body.customerPhone);
+  if (typeof body.customerPhone === 'string' && body.customerPhone.trim() && !phone) {
+    throw new CheckoutError(422, 'PHONE_INVALID', 'Revisa tu WhatsApp: escribe los 10 dígitos.', { field: 'customerPhone' });
+  }
+  const core = { amount: priced.amount, currency: CURRENCY, paymentMethod, customerName, customerEmail, bumps: priced.bumps, kyc, phone };
+  const names = kyc ? { firstName: kyc.firstName, lastName: kyc.lastName } : (() => {
+    const fn = cleanName(body.firstName), ln = cleanName(body.lastName);
+    return fn && ln && `${fn} ${ln}` === customerName ? { firstName: fn, lastName: ln } : splitName(customerName);
+  })();
   const fp = fingerprint(core);
 
   const intentKey = `intent:${requestId}`;
@@ -170,7 +179,8 @@ export async function createOrderCheckout(ctx) {
         currency: CURRENCY,
         items: priced.items,
         bumps: priced.bumps,
-        customer: { name: customerName, email: customerEmail },
+        customer: { name: customerName, email: customerEmail, phone, ...names },
+        tracking: ctx.tracking ?? null,
         paymentMethod,
         utm,
         paid: false,
@@ -218,6 +228,9 @@ export async function createOrderCheckout(ctx) {
     nextAction: publicNextAction(result.nextAction),
   };
   await store.set(orderKey, updated, { ttlSeconds: ORDER_TTL });
+  if (ctx.onPaymentGenerated && !order.checkoutId) {
+    try { await ctx.onPaymentGenerated(updated); } catch { /* el rastreo no debe afectar el pago */ }
+  }
   return publicResult(updated);
 }
 

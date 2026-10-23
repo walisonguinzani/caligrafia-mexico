@@ -311,3 +311,40 @@ test('lee la lista de métodos en distintos formatos de respuesta', () => {
   assert.deepEqual(findMethodList({ country: 'MX', methods: ['oxxo', 'spei'] }).map((x) => x.code), ['oxxo', 'spei']);
   assert.equal(findMethodList({ ok: true }).length, 0);
 });
+
+import { buildUserData, normalizePhone, sendMetaEvent } from '../api/_lib/meta.js';
+
+test('Meta: teléfono MX normalizado y datos personales en SHA-256', () => {
+  assert.equal(normalizePhone('55 1234 5678'), '525512345678');
+  assert.equal(normalizePhone('+52 1 55 1234 5678'), '525512345678');
+  assert.equal(normalizePhone('123'), '');
+  const u = buildUserData({ email: ' Maria@Gmail.com ', phone: '5512345678', firstName: 'María', lastName: 'López', externalId: 'cal-1', ip: '1.2.3.4', ua: 'UA', fbp: 'fb.1.1.1', fbc: 'fb.1.1.abc' });
+  assert.match(u.em[0], /^[0-9a-f]{64}$/);
+  assert.notEqual(u.em[0], 'maria@gmail.com');
+  assert.equal(u.client_ip_address, '1.2.3.4');
+  assert.equal(u.fbp, 'fb.1.1.1');
+});
+
+test('Meta: sin token no se envía nada; con token usa el event_id dado', async () => {
+  const calls = [];
+  const fetchImpl = async (url, init) => { calls.push({ url, body: JSON.parse(init.body) }); return new Response('{}'); };
+  assert.equal((await sendMetaEvent({ name: 'Purchase', eventId: 'purchase_x', user: {} }, { fetchImpl, env: {} })).skipped, true);
+  await sendMetaEvent({ name: 'Purchase', eventId: 'purchase_x', value: 250, user: { email: 'a@b.mx' } }, { fetchImpl, env: { META_CAPI_TOKEN: 't', META_PIXEL_ID: '123' } });
+  assert.match(calls[0].url, /\/123\/events\?access_token=t$/);
+  assert.equal(calls[0].body.data[0].event_id, 'purchase_x');
+  assert.equal(calls[0].body.data[0].custom_data.value, 250);
+  assert.equal(calls[0].body.data[0].custom_data.currency, 'MXN');
+});
+
+test('checkout dispara AddPaymentInfo una sola vez y guarda rastreo para la compra', async () => {
+  const { zenith, store } = setup((b) => okCheckout(b));
+  let n = 0;
+  const body = buyer({ customerPhone: '55 1234 5678' });
+  const tracking = { ip: '1.2.3.4', ua: 'UA', fbp: 'fb.1.1.1', fbc: '', url: 'https://x.mx/checkout.html' };
+  const out = await createOrderCheckout({ body, siteUrl: 'https://x.mx', zenith, store, tracking, onPaymentGenerated: async () => { n++; } });
+  await createOrderCheckout({ body, siteUrl: 'https://x.mx', zenith, store, tracking, onPaymentGenerated: async () => { n++; } });
+  assert.equal(n, 1);
+  const order = await store.get(`order:${out.referenceId}`);
+  assert.equal(order.customer.phone, '525512345678');
+  assert.equal(order.tracking.fbp, 'fb.1.1.1');
+});

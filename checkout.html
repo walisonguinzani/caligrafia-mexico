@@ -45,6 +45,12 @@
           <span class="ayuda">Ahí te enviamos tu acceso al material.</span>
           <span class="err" id="err-customerEmail" role="alert"></span>
         </div>
+        <div class="campo">
+          <label for="customerPhone">WhatsApp <span style="font-weight:500;color:var(--texto-2)">(opcional)</span></label>
+          <input id="customerPhone" name="customerPhone" type="tel" inputmode="tel" autocomplete="tel-national" placeholder="10 dígitos" maxlength="16">
+          <span class="ayuda">Para avisarte de tu pedido y ayudarte si lo necesitas.</span>
+          <span class="err" id="err-customerPhone" role="alert"></span>
+        </div>
       </section>
 
       <section class="panel" aria-labelledby="p2">
@@ -108,6 +114,8 @@
 
 <script type="module">
 import { fmt, renderPago, vigilarEstado } from './assets/pago.js';
+import { metaIds, trackNav, trackOrder } from './assets/meta.js';
+trackNav('InitiateCheckout');
 
 const $ = (id) => document.getElementById(id);
 const form = $('form'), btn = $('enviar');
@@ -188,7 +196,7 @@ async function cargarOferta() {
 
 // ---------- Errores en campos ----------
 function limpiarErrores() {
-  ['customerName', 'customerEmail', 'paymentMethod', 'documentNumber', 'birthDate', 'birthCountry'].forEach((f) => { $('err-' + f).textContent = ''; $(f)?.removeAttribute('aria-invalid'); });
+  ['customerName', 'customerEmail', 'customerPhone', 'paymentMethod', 'documentNumber', 'birthDate', 'birthCountry'].forEach((f) => { $('err-' + f).textContent = ''; $(f)?.removeAttribute('aria-invalid'); });
   ['firstName', 'lastName'].forEach((f) => $(f).removeAttribute('aria-invalid'));
   $('errorGeneral').classList.add('oculto');
 }
@@ -204,6 +212,7 @@ function validarLocal(d) {
   const partes = d.customerName.split(' ').filter(Boolean);
   if (partes.length < 2) return ['customerName', 'Escribe tu nombre y al menos un apellido.'];
   if (!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(d.customerEmail)) return ['customerEmail', 'Revisa tu correo: parece incompleto.'];
+  if (d.customerPhone && d.customerPhone.replace(/\D/g, '').length < 10) return ['customerPhone', 'Revisa tu WhatsApp: escribe los 10 dígitos.'];
   if (!d.paymentMethod) return ['paymentMethod', 'Elige una forma de pago.'];
   if (form.dataset.kyc) {
     if (!/^[A-ZÑ&]{3,4}\d{6}[A-Z\d]{3}$/.test(d.documentNumber)) return ['documentNumber', 'Revisa tu RFC: son 13 caracteres, por ejemplo GOMA900115AB1.'];
@@ -216,7 +225,7 @@ function validarLocal(d) {
 // Mismo pedido => mismo requestId (el servidor reutiliza la misma Idempotency-Key).
 // Pedido distinto o error definitivo => requestId nuevo.
 function requestIdPara(d) {
-  const huella = JSON.stringify([d.customerName, d.customerEmail, d.paymentMethod, d.bumps, d.documentNumber || '', d.birthDate || '', d.birthCountry || '']);
+  const huella = JSON.stringify([d.customerName, d.customerEmail, d.customerPhone || '', d.paymentMethod, d.bumps, d.documentNumber || '', d.birthDate || '', d.birthCountry || '']);
   const prev = ss.get('intento');
   if (prev && prev.huella === huella && !prev.cerrado) return prev.id;
   const id = crypto.randomUUID();
@@ -248,6 +257,7 @@ form.addEventListener('submit', async (e) => {
     customerEmail: $('customerEmail').value.trim(),
     paymentMethod: form.querySelector('input[name="paymentMethod"]:checked')?.value || '',
     bumps: elegidos().sort(),
+    customerPhone: $('customerPhone').value.trim(),
   };
   if (form.dataset.kyc) {
     d.documentNumber = $('documentNumber').value.toUpperCase().replace(/[\s-]/g, '');
@@ -262,7 +272,8 @@ form.addEventListener('submit', async (e) => {
   const textoBtn = btn.innerHTML;
   btn.textContent = 'Generando tu pago…';
   try {
-    const pedido = await enviar({ ...d, requestId: requestIdPara(d), utm: ss.get('utm') || {} });
+    const pedido = await enviar({ ...d, requestId: requestIdPara(d), utm: ss.get('utm') || {}, ...metaIds() });
+    trackOrder('AddPaymentInfo', pedido.referenceId, pedido.amount / 100, `api_${pedido.referenceId}`);
     cerrarIntento();
     ls.set('ultimoPedido', { ref: pedido.referenceId, t: pedido.accessToken, at: Date.now() });
     mostrarPago(pedido);
