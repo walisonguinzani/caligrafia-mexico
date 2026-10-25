@@ -8,7 +8,7 @@ export const COUNTRY = 'MX';
 export const PRODUCT = {
   id: 'paquete-caligrafia',
   name: 'Paquete Completo de Caligrafía',
-  amount: 20000, // $200.00 MXN
+  amount: 15000, // $150.00 MXN
 };
 
 export const BUMPS = {
@@ -37,3 +37,6 @@ export function priceOrder(bumpIds) {
   const amount = items.reduce((sum, it) => sum + it.amount, 0);
   return { items, bumps: chosen, amount };
 }
+
+// Formas de pago que ofrecemos (aunque Zenith libere más en la cuenta).
+export const ALLOWED_METHODS = ['spei'];

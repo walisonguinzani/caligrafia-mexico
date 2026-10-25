@@ -23,7 +23,7 @@ export function metaIds() {
 const nuevoId = () => (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random().toString(16).slice(2));
 
 /** Evento de navegación: navegador + servidor con el mismo id. */
-export function trackNav(name, data = { value: 200, currency: 'MXN' }) {
+export function trackNav(name, data = { value: 150, currency: 'MXN' }) {
   const eventId = `${name.toLowerCase()}_${nuevoId()}`;
   window.fbq('track', name, data, { eventID: eventId });
   // Esperar un poco a que el píxel cree la cookie _fbp.

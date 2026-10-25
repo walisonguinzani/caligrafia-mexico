@@ -36,7 +36,7 @@ Deliverables (real, on hand):
 - Aplicación con videoclases (one combined benefit)
 - Not part of this offer (future upsells, never mention on the page): grupo VIP de WhatsApp, acceso vitalicio/de por vida
 Checkout: will be integrated via "Zenith API" (undecided details); CTA URL is a configurable placeholder.
-Landing page offer: pago único $200 MXN via checkout, garantía de 30 días (reembolso). "Recibe primero, paga después" is WhatsApp-only: never on the landing page.
+Landing page offer: pago único $150 MXN, solo SPEI via checkout, garantía de 30 días (reembolso). "Recibe primero, paga después" is WhatsApp-only: never on the landing page.
 
 ## Brand Commitments
 

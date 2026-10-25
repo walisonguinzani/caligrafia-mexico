@@ -5,7 +5,8 @@ import { createZenithClient, ZenithError, findMethodList } from '../api/_lib/zen
 import { createMemoryStore } from '../api/_lib/store.js';
 import { createOrderCheckout, getOrderStatus, CheckoutError } from '../api/_lib/checkout-service.js';
 import { handleWebhook, verifySignature } from '../api/_lib/webhook.js';
-import { priceOrder } from '../api/_lib/pricing.js';
+import { priceOrder, ALLOWED_METHODS } from '../api/_lib/pricing.js';
+import { listMethods } from '../api/_lib/checkout-service.js';
 import { nameError, emailError } from '../api/_lib/validate.js';
 
 const CATALOG = { paymentMethods: [
@@ -39,7 +40,7 @@ function okCheckout(body) {
       checkout: { id: 'checkout_1', referenceId: body.referenceId, amount: body.amount, currency: 'MXN', status: 'pending' },
       payment: { status: 'pending' },
       method: { code: body.paymentMethod, displayName: 'OXXO', iconUrl: 'https://api.zenithworld.com.br/elements/icons/oxxo.svg' },
-      nextAction: { type: 'voucher', code: '93000012345678', instructions: { title: 'Cómo pagar en OXXO', steps: ['Paso 1', 'Paso 2'] }, internal: 'x' },
+      nextAction: { type: 'voucher', code: '92500012345678', instructions: { title: 'Cómo pagar en OXXO', steps: ['Paso 1', 'Paso 2'] }, internal: 'x' },
     },
   };
 }
@@ -65,12 +66,19 @@ const buyer = (extra = {}) => ({
   ...extra,
 });
 
+test('solo se ofrece SPEI aunque Zenith libere OXXO', async () => {
+  const { zenith } = setup(() => ({}));
+  assert.deepEqual((await listMethods(zenith)).map((m) => m.code), ['spei']);
+});
+// El resto de las pruebas usa OXXO como método genérico de prueba.
+test('habilitar oxxo solo para las pruebas', () => { ALLOWED_METHODS.push('oxxo'); });
+
 const checkoutCalls = (f) => f.calls.filter((c) => c.url.endsWith('/integrations/checkouts'));
 
 test('precios: base $200 y cada bump $50, sin confiar en el navegador', () => {
-  assert.equal(priceOrder([]).amount, 20000);
-  assert.equal(priceOrder(['grupo-vip']).amount, 25000);
-  assert.equal(priceOrder(['grupo-vip', 'acceso-de-por-vida', 'grupo-vip', 'inventado']).amount, 30000);
+  assert.equal(priceOrder([]).amount, 15000);
+  assert.equal(priceOrder(['grupo-vip']).amount, 20000);
+  assert.equal(priceOrder(['grupo-vip', 'acceso-de-por-vida', 'grupo-vip', 'inventado']).amount, 25000);
 });
 
 test('validación de nombre y correo', () => {
@@ -88,7 +96,7 @@ test('éxito: crea checkout con payload correcto y devuelve solo datos públicos
   const { fetchImpl, zenith, store } = setup((b) => okCheckout(b));
   const out = await createOrderCheckout({ body: buyer({ bumps: ['acceso-de-por-vida'] }), siteUrl: 'https://tienda.mx', zenith, store });
   const [call] = checkoutCalls(fetchImpl);
-  assert.equal(call.body.amount, 25000);
+  assert.equal(call.body.amount, 20000);
   assert.equal(call.body.currency, 'MXN');
   assert.equal(call.body.country, 'MX');
   assert.equal(call.body.environment, 'production');
@@ -97,9 +105,9 @@ test('éxito: crea checkout con payload correcto y devuelve solo datos públicos
   assert.equal(call.body.cancelUrl, 'https://tienda.mx/checkout.html');
   assert.ok(call.init.headers['Idempotency-Key']);
   assert.equal(call.init.headers['X-API-Secret'], 'sk');
-  assert.equal(out.amount, 25000);
+  assert.equal(out.amount, 20000);
   assert.equal(out.nextAction.type, 'voucher');
-  assert.equal(out.nextAction.code, '93000012345678');
+  assert.equal(out.nextAction.code, '92500012345678');
   assert.equal(out.nextAction.internal, undefined);
   assert.equal(JSON.stringify(out).includes('sk'), false);
 });
@@ -194,7 +202,7 @@ async function paidOrderFixture() {
 test('webhook válido marca pagado una sola vez y libera acceso', async () => {
   const { zenith, store, out } = await paidOrderFixture();
   let deliveries = 0;
-  const evt = signed({ type: 'payment.captured', data: { referenceId: out.referenceId, amount: 25000, currency: 'MXN' } });
+  const evt = signed({ type: 'payment.captured', data: { referenceId: out.referenceId, amount: 20000, currency: 'MXN' } });
   const r1 = await handleWebhook({ ...evt, secret: SECRET, store, nowSeconds: evt.ts, onPaid: async () => { deliveries++; } });
   assert.equal(r1.status, 200);
   assert.equal(r1.body.outcome, 'paid');
@@ -202,7 +210,7 @@ test('webhook válido marca pagado una sola vez y libera acceso', async () => {
   const r2 = await handleWebhook({ ...evt, secret: SECRET, store, nowSeconds: evt.ts, onPaid: async () => { deliveries++; } });
   assert.equal(r2.body.duplicate, true);
   // Otro evento de pago para el mismo pedido tampoco duplica la entrega.
-  const evt2 = signed({ type: 'checkout.succeeded', data: { referenceId: out.referenceId, amount: 25000, currency: 'MXN' } });
+  const evt2 = signed({ type: 'checkout.succeeded', data: { referenceId: out.referenceId, amount: 20000, currency: 'MXN' } });
   const r3 = await handleWebhook({ ...evt2, secret: SECRET, store, nowSeconds: evt2.ts, onPaid: async () => { deliveries++; } });
   assert.equal(r3.body.outcome, 'already_paid');
   assert.equal(deliveries, 1);
@@ -215,7 +223,7 @@ test('webhook válido marca pagado una sola vez y libera acceso', async () => {
 
 test('webhook con firma inválida se rechaza', async () => {
   const { store, out } = await paidOrderFixture();
-  const evt = signed({ type: 'payment.captured', data: { referenceId: out.referenceId, amount: 25000, currency: 'MXN' } }, { secret: 'otra' });
+  const evt = signed({ type: 'payment.captured', data: { referenceId: out.referenceId, amount: 20000, currency: 'MXN' } }, { secret: 'otra' });
   const r = await handleWebhook({ ...evt, secret: SECRET, store, nowSeconds: evt.ts });
   assert.equal(r.status, 401);
   assert.equal((await store.get(`order:${out.referenceId}`)).paid, false);
@@ -223,7 +231,7 @@ test('webhook con firma inválida se rechaza', async () => {
 
 test('webhook con más de 300 s se rechaza', async () => {
   const { store, out } = await paidOrderFixture();
-  const evt = signed({ type: 'payment.captured', data: { referenceId: out.referenceId, amount: 25000, currency: 'MXN' } });
+  const evt = signed({ type: 'payment.captured', data: { referenceId: out.referenceId, amount: 20000, currency: 'MXN' } });
   const r = await handleWebhook({ ...evt, secret: SECRET, store, nowSeconds: evt.ts + 301 });
   assert.equal(r.status, 401);
 });

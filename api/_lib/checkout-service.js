@@ -1,7 +1,7 @@
 // Lógica de creación de checkout, separada de HTTP para poder probarla.
 
 import { randomUUID, timingSafeEqual } from 'node:crypto';
-import { COUNTRY, CURRENCY, priceOrder } from './pricing.js';
+import { ALLOWED_METHODS, COUNTRY, CURRENCY, priceOrder } from './pricing.js';
 import { birthDateError, cleanCountry, cleanEmail, cleanName, cleanRfc, emailError, isUuid, nameError, rfcError, splitName } from './validate.js';
 import { ZenithError, publicMethod, publicNextAction } from './zenith.js';
 import { normalizePhone } from './meta.js';
@@ -46,6 +46,7 @@ function makeReferenceId(now) {
 export async function listMethods(zenith) {
   const raw = await zenith.listPaymentMethods({ country: COUNTRY, currency: CURRENCY });
   return raw
+    .filter((m) => ALLOWED_METHODS.includes(m?.code ?? m?.paymentMethod ?? m?.methodCode ?? m?.method ?? m?.slug ?? m?.id))
     .filter((m) => m.enabled !== false && m.available !== false && m.active !== false && m.status !== 'disabled')
     .map(publicMethod).filter(Boolean);
 }
